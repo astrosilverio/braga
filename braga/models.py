@@ -11,7 +11,7 @@ class Entity(object):
         return self._uuid
 
     def __repr__(self):
-        return "{0}({1}) - {2} ".format(type(self).__name__, self._uuid, self.components)
+        return "{0}({1}) - {2}".format(type(self).__name__, self._uuid, self.components)
 
     def __getattr__(self, name):
         for component in self.components:
