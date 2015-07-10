@@ -21,6 +21,13 @@ class Alive(Component):
 
 class TestEntity(unittest.TestCase):
 
+    def test_has_component(self):
+        cat = Entity(0)
+
+        catalive = Alive()
+        cat.components.add(catalive)
+        self.assertTrue(cat.has_component(Alive))
+
     def test_entity_attributes(self):
         cat = Entity(0)
         with self.assertRaises(AttributeError):

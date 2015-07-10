@@ -1,7 +1,5 @@
 class Entity(object):
 
-    __slots__ = ('_uuid', 'components')
-
     def __init__(self, uuid):
         self._uuid = uuid
         self.components = set()
@@ -9,6 +7,9 @@ class Entity(object):
     @property
     def uuid(self):
         return self._uuid
+
+    def has_component(self, component_type):
+        return any(isinstance(comp, component_type) for comp in self.components)
 
     def __repr__(self):
         return "{0}({1}) - {2}".format(type(self).__name__, self._uuid, self.components)
