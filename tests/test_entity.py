@@ -22,14 +22,14 @@ class Alive(Component):
 class TestEntity(unittest.TestCase):
 
     def test_has_component(self):
-        cat = Entity(0)
+        cat = Entity()
 
         catalive = Alive()
         cat.components.add(catalive)
         self.assertTrue(cat.has_component(Alive))
 
     def test_entity_attributes(self):
-        cat = Entity(0)
+        cat = Entity()
         with self.assertRaises(AttributeError):
             cat.alive
 
@@ -40,6 +40,7 @@ class TestEntity(unittest.TestCase):
 
         cat.die()
         self.assertFalse(cat.alive)
+        self.assertFalse(catalive.alive)
 
         cat.components.remove(catalive)
 
@@ -47,10 +48,10 @@ class TestEntity(unittest.TestCase):
             cat.resurrect()
 
     def test_entity_display(self):
-        cat = Entity(0)
-        self.assertEqual(repr(cat), "Entity(0) - set([])")
+        cat = Entity()
+        self.assertEqual(repr(cat), "Entity({}) - set([])".format(cat.uuid))
 
         catalive = Alive()
         cat.components.add(catalive)
 
-        self.assertEqual(repr(cat), "Entity(0) - set([Alive])")
+        self.assertEqual(repr(cat), "Entity({}) - set([Alive])".format(cat.uuid))
