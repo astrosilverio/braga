@@ -1,3 +1,5 @@
+import abc
+import threading
 import uuid
 
 
@@ -29,7 +31,6 @@ class Entity(object):
 
 
 class Component(object):
-
     def __repr__(self):
         return type(self).__name__
 
@@ -46,3 +47,19 @@ class Assemblage(object):
         entity = Entity()
         entity.components |= set([k(v) if v is not None else k() for k, v in self.component_types.iteritems()])
         return entity
+
+
+class System(object):
+
+    __metaclass__ = abc.ABCMeta
+
+    def __init__(self):
+        self.thread = None
+
+    def start(self):
+        self.thread = threading.Thread(name=type(self).__name__, target=self.update)
+        self.thread.start()
+
+    @abc.abstractmethod
+    def update(self):
+        """Updates the entities in this system"""
