@@ -38,11 +38,7 @@ class Container(Component):
         return self._inventory
 
     def pick_up(self, thing):
-<<<<<<< HEAD
         if hasattr(thing, 'is_portable'):
-=======
-        if hasattr(thing, 'portable'):
->>>>>>> 0a269f3d52d73535e3ae9370389d997f35a35264
             self._inventory.add(thing)
 
     def put_down(self, thing):
