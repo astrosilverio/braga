@@ -1,48 +1,7 @@
 import unittest
 
-from braga.models import Entity, Component, Assemblage
-
-
-class Alive(Component):
-
-    def __init__(self, alive=True):
-        self._alive = alive
-
-    @property
-    def alive(self):
-        return self._alive
-
-    def die(self):
-        self._alive = False
-
-    def resurrect(self):
-        self._alive = True
-
-
-class Portable(Component):
-
-    @property
-    def is_portable(self):
-        return True
-
-
-class Container(Component):
-
-    def __init__(self, inventory=None):
-        self._inventory = set()
-        if inventory:
-            self._inventory |= inventory
-
-    @property
-    def inventory(self):
-        return self._inventory
-
-    def pick_up(self, thing):
-        if hasattr(thing, 'is_portable'):
-            self._inventory.add(thing)
-
-    def put_down(self, thing):
-        self._inventory.remove(thing)
+from braga.models import Entity, Assemblage
+from tests.fixtures import Alive, Portable, Container
 
 
 class TestAssemblage(unittest.TestCase):
@@ -105,5 +64,6 @@ class TestAssemblage(unittest.TestCase):
         stray_cat = cat_factory.make()
         self.human.pick_up(my_cat)
 
+        self.assertNotEqual(my_cat.uuid, stray_cat.uuid)
         self.assertIn(my_cat, self.human.inventory)
         self.assertNotIn(stray_cat, self.human.inventory)
