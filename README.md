@@ -1,6 +1,6 @@
 # Braga
 
-An Entity-Component system (currently minus the system). 
+An Entity-Component-System system. 
 
 ## Prerequisites
 Python 2.7
@@ -17,7 +17,7 @@ Entities represent whole "things"--like a cat. Components are groups of attribut
 
 To give an entity, like a cat, abilities, the cat needs to be associated with components, specifically instances of components. For example, to give the cat the quality of being alive, give the cat an instance of the `Living` component class; that `Living` instance will store whether on not the cat is alive.
 
-The S of ECS is for System; Systems let you group together Entities for simultaneous updates. I don't currently need that for the text adventure framework that I'm writing, so I'm not implementing Systems just yet.
+The S of ECS is for System; Systems let you group together Entities for simultaneous updates. I don't really know how threads work right now so this is just a skeleton.
 
 ### Why I am writing this package
 
