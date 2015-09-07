@@ -88,3 +88,6 @@ class Aspect(object):
     def is_interested_in_some_of(self, entity):
         components = set([type(component) for component in entity.components])
         return components & self.some_of or not self.some_of
+
+    def select_entities(self, entities):
+        return set([entity for entity in entities if self.is_interested_in(entity)])

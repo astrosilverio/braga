@@ -22,6 +22,8 @@ class TestAspect(unittest.TestCase):
         self.zombie = Entity()
         self.zombie.components |= set([Moveable(), Location(), Container()])
 
+        self.entities = set([self.cat, self.plant, self.bathtub, self.brains, self.zombie])
+
     def test_aspect_is_interested_in_all_of(self):
         aspect = Aspect(all_of=set([Alive, Portable]))
 
@@ -30,6 +32,8 @@ class TestAspect(unittest.TestCase):
         self.assertFalse(aspect.is_interested_in(self.bathtub))
         self.assertFalse(aspect.is_interested_in(self.brains))
         self.assertFalse(aspect.is_interested_in(self.zombie))
+
+        self.assertEqual(aspect.select_entities(self.entities), set([self.cat]))
 
     def test_aspect_is_interested_in_exclude(self):
         aspect = Aspect(exclude=set([Container]))
@@ -40,6 +44,8 @@ class TestAspect(unittest.TestCase):
         self.assertTrue(aspect.is_interested_in(self.brains))
         self.assertFalse(aspect.is_interested_in(self.zombie))
 
+        self.assertEqual(aspect.select_entities(self.entities), set([self.plant, self.brains]))
+
     def test_aspect_is_interested_in_some_of(self):
         aspect = Aspect(some_of=set([Location, Container]))
 
@@ -49,6 +55,8 @@ class TestAspect(unittest.TestCase):
         self.assertTrue(aspect.is_interested_in(self.brains))
         self.assertTrue(aspect.is_interested_in(self.zombie))
 
+        self.assertEqual(aspect.select_entities(self.entities), set([self.cat, self.bathtub, self.brains, self.zombie]))
+
     def test_aspect_is_interested_in_different_categories(self):
         aspect = Aspect(all_of=set([Container]), exclude=set([Moveable]), some_of=set([Location, Portable, Alive]))
 
@@ -57,3 +65,5 @@ class TestAspect(unittest.TestCase):
         self.assertFalse(aspect.is_interested_in(self.bathtub))
         self.assertFalse(aspect.is_interested_in(self.brains))
         self.assertFalse(aspect.is_interested_in(self.zombie))
+
+        self.assertEqual(aspect.select_entities(self.entities), set([self.cat]))
