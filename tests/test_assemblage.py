@@ -1,6 +1,6 @@
 import unittest
 
-from braga.models import Entity, Assemblage
+from braga import Entity, Assemblage
 from tests.fixtures import Alive, Portable, Container
 
 

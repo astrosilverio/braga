@@ -1,6 +1,6 @@
 import unittest
 
-from braga.models import Entity, Component
+from braga import Entity, Component
 
 
 class Alive(Component):

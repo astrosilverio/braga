@@ -1,6 +1,6 @@
 import unittest
 
-from braga.models import System
+from braga import System
 
 
 class BadSystem(System):

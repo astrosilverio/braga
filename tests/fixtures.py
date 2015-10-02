@@ -1,4 +1,4 @@
-from braga.models import Component
+from braga import Component
 
 
 class Alive(Component):

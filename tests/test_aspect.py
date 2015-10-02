@@ -1,6 +1,6 @@
 import unittest
 
-from braga.models import Aspect, Entity
+from braga import Aspect, Entity
 from tests.fixtures import Alive, Portable, Container, Moveable, Location
 
 
