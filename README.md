@@ -27,8 +27,8 @@ I need ECS for my [text adventure framework] (https://github.com/astrosilverio/h
 
 ```
 > cat = Entity(0)
-> catliving = Living()
-> cat.components.add(catliving)
+> catalive = Alive()  # user-defined Component
+> cat.components.add(catalive)
 
 > cat.alive
   True
@@ -37,6 +37,40 @@ I need ECS for my [text adventure framework] (https://github.com/astrosilverio/h
   False
 ```
 
+### Fake Object-Orientation
 
+When I started playing with ECS, the first thing I noticed was that I was annoyed that attributes did not belong to entities. While that is the design feature that makes ECS so extensible / unique / useful, it is also really irritating if every time you want to check if the cat is alive, you have to check that attribute on a _component_ on the cat instead of the cat itself.
 
+Besides making it annoying for me to mess around with entities in the repl, I realized that the extra overhead required to access attributes would complicate my text adventure code. I don't want hogwarts to know how its Rooms and Things and Players work under the hood. So I violated the guiding principle of ECS a bit and am faking object orientation by rewriting `__getattr__` on Entities.
 
+The familiar way of accessing attributes with dots, like `cat.components`, is just sugar for `getattr(cat, 'components')`. Normally, `__getattr__` will raise an `AttributeError` if an attribute is not found. If I wasn't faking object-orientation, then `cat.components` would not raise an `AttributeError` but `cat.alive` would, because the `cat` Entity does not have an attribute `alive`. But if you hack the Entity's `__getattr__` like so:
+
+```
+    def __getattr__(self, name):
+        for component in self.components:
+            try:
+                attr = getattr(component, name)
+            except AttributeError:
+                pass
+            else:
+                return attr
+        raise AttributeError
+```
+
+Then the entity will search through all of its components to see if any of them have the attribute before throwing up its hands to say "I don't have that attribute". The result? I can access attributes that are stored in the entity's components as if they were actually stored on the entity itself. Fake object orientation!
+
+### Assemblages
+
+ECS is kinda clunky if you have to separately define each component for each entity. Braga comes with an `Assemblage` class that can be used to make factories. For example:
+
+```
+# factory setup work
+> cat_factory = Assemblage()
+> cat_factory.add_component(Alive)
+> cat_factory.add_component(Portable)
+> cat_factory.add_component(Container)
+
+# start using factory to make cats
+> cat = cat_factory.make()
+> new_cat = cat_factory.make()
+```
