@@ -1,6 +1,10 @@
 import uuid
 
 
+class EntityError(Exception):
+    pass
+
+
 class Entity(object):
 
     def __init__(self):
@@ -10,6 +14,15 @@ class Entity(object):
     @property
     def uuid(self):
         return self._uuid
+
+    def get_component(self, component_type):
+        components = [comp for comp in self.components if isinstance(comp, component_type)]
+        if not components:
+            raise AttributeError
+        elif len(components) == 1:
+            return components[0]
+        else:
+            raise EntityError("More than one component of type {}" % component_type)
 
     def has_component(self, component_type):
         return any(isinstance(comp, component_type) for comp in self.components)

@@ -55,3 +55,10 @@ class TestEntity(unittest.TestCase):
         cat.components.add(catalive)
 
         self.assertEqual(repr(cat), "Entity({}) - set([Alive])".format(cat.uuid))
+
+    def test_get_component(self):
+        cat = Entity()
+        catalive = Alive()
+        cat.components.add(catalive)
+
+        self.assertEqual(cat.get_component(Alive), catalive)
