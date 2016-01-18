@@ -42,7 +42,7 @@ class TestAssemblage(unittest.TestCase):
 
     def test_assembling_entity_with_initial_conditions(self):
         zombie_cat_factory = Assemblage()
-        zombie_cat_factory.add_component(Alive, init_args=False)
+        zombie_cat_factory.add_component(Alive, alive=False)
 
         zombie_cat = zombie_cat_factory.make()
         self.assertFalse(zombie_cat.alive)
@@ -50,7 +50,7 @@ class TestAssemblage(unittest.TestCase):
         self.assertTrue(zombie_cat.alive)
 
         fed_cat_factory = Assemblage()
-        fed_cat_factory.add_component(Container, init_args=set([self.food]))
+        fed_cat_factory.add_component(Container, inventory=set([self.food]))
 
         fed_cat = fed_cat_factory.make()
         self.assertIn(self.food, fed_cat.inventory)
@@ -67,3 +67,36 @@ class TestAssemblage(unittest.TestCase):
         self.assertNotEqual(my_cat.uuid, stray_cat.uuid)
         self.assertIn(my_cat, self.human.inventory)
         self.assertNotIn(stray_cat, self.human.inventory)
+
+    def test_giving_factory_initial_components_in_dict(self):
+        zombie_cat_factory = Assemblage(components={Alive: {'alive': False}, Portable: {}})
+        zombie_cat = zombie_cat_factory.make()
+
+        self.assertTrue(isinstance(zombie_cat, Entity))
+        self.assertFalse(zombie_cat.alive)
+        self.assertTrue(zombie_cat.is_portable)
+
+    def test_giving_factory_initial_components_in_list(self):
+        cat_factory = Assemblage(components=[Alive, Portable])
+        cat = cat_factory.make()
+
+        self.assertTrue(isinstance(cat, Entity))
+        self.assertTrue(cat.alive)
+        self.assertTrue(cat.is_portable)
+
+    def test_adding_component_with_initial_components(self):
+        cat_factory = Assemblage(components=[Portable])
+        cat_factory.add_component(Alive)
+        cat = cat_factory.make()
+
+        self.assertTrue(isinstance(cat, Entity))
+        self.assertTrue(cat.alive)
+        self.assertTrue(cat.is_portable)
+
+    def test_initializing_components_at_production_time(self):
+        cat_factory = Assemblage(components=[Alive, Portable])
+        zombie_cat = cat_factory.make(alive=False)
+
+        self.assertTrue(isinstance(zombie_cat, Entity))
+        self.assertFalse(zombie_cat.alive)
+        self.assertTrue(zombie_cat.is_portable)
