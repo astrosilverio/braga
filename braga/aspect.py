@@ -10,6 +10,9 @@ class Aspect(object):
                 self.is_interested_in_exclude(entity) and
                 self.is_interested_in_some_of(entity))
 
+    def __contains__(self, entity):
+        return self.is_interested_in(entity)
+
     def is_interested_in_all_of(self, entity):
         components = set([type(component) for component in entity.components])
         return components.issuperset(self.all_of)
