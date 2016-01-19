@@ -1,15 +1,18 @@
+from collections import defaultdict
+
 from braga import Assemblage, Component, System, Aspect
 
 #################################################
 # define components for players, rooms, and wand
 #################################################
 
+
 class Description(Component):  # for all entities
-    def __init__(self, description=None):
+    def __init__(self, description):
         self.description = description
 
 
-class Container(Component): # Container -- for room and player
+class Container(Component):  # Container -- for room and player
     def __init__(self, inventory=None):
         self._inventory = inventory if inventory else set()
 
@@ -30,22 +33,34 @@ class Mappable(Component):  # Mappable -- for room
 
 
 class Moveable(Component):  # Moveable -- for player and wand
-    def __init__(self, location=None):
+    def __init__(self, location):
         self.location = location
-
-    @property
-    def is_moveable(self):
-        return True
 
 
 class Equipment(Component):  # Equipment -- for wand
-    def __init__(self, bearer=None, equipment_type=None):
+    def __init__(self, bearer, equipment_type):
         self.bearer = bearer
         self.equipment_type = equipment_type
 
+class Headgear(Component):
+    def __init__(self, bearer, equipment_type):
+        self.bearer = bearer
+        self.equipment_type = equipment_type
+
+class Footgear(Component):
+    def __init__(self, bearer, equipment_type):
+        self.bearer = bearer
+        self.equipment_type = equipment_type
+
+class BigEquipment(Equipment):  # like 11-ft pole
+    def __init__(self, bearer, equipment_type):
+        self.bearer = bearer
+        self.equipment_type = equipment_type
 
 # Loyalty -- for wand
-# ExpelliarmusSkill -- for player
+# class ExpelliarmusSkill(Component):
+
+# class AlohomoraSkill(Component):
 
 #####################################
 # define systems to manage components
@@ -66,8 +81,6 @@ class ContainerSystem(System):
         pass
 
     def move(self, thing, new_container, old_container):
-        if not thing.is_moveable:
-            raise TypeError("Item is not movable")
         thing.location = new_container
         new_container.add_entity(thing)
         old_container.remove_entity(thing)
@@ -81,19 +94,44 @@ class ContainerSystem(System):
 
 class EquipmentSystem(System):
     def __init__(self):
-        super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
-        self.equipment = defaultdict(dict)
+        # super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
+        self.equipment = defaultdict(self.make_equipment_dict)
+
+    def make_equipment_dict(self):
+        return {'Equipment': [], 'Headgear': None, 'Footgear': None}
 
     def equip(self, bearer, item):
+        if not self.can_player_equip_item(bearer, item):
+            raise ValueError("You cannot equip that at this time")
         setattr(bearer, item.equipment_type, item)
-        self.equipment[bearer][item.equipment_type] = item
+        if item.has_component(BigEquipment):
+            self.equipment[bearer]['Equipment'].append(item)
+        if item.has_component(Equipment):
+            self.equipment[bearer]['Equipment'].append(item)
+        else:
+            self.equipment[bearer]['Headgear'] = item
+        bearer.equipment = self.equipment[bearer]
 
     def unequip(self, bearer, item):
         delattr(bearer, item.equipment_type)
-        del self.equipment[bearer][item.equipment_type]
+        if item.has_component(BigEquipment):
+            self.equipment[bearer]['Equipment'].remove(item)
+        if item.has_component(Equipment):
+            self.equipment[bearer]['Equipment'].remove(item)
+        else:
+            self.equipment[bearer]['Headgear'] = None
 
     def update(self):
         pass
+
+    def can_player_equip_item(self, bearer, item):
+        if item.has_component(BigEquipment):
+            return len(self.equipment[bearer]['Equipment']) == 0
+        if item.has_component(Equipment):
+            return len(self.equipment[bearer]['Equipment']) < 2
+        else:
+            return not self.equipment[bearer]['Headgear']
+
 
 
 # LoyaltySystem -- keeps track of what is loyal to who
@@ -102,7 +140,6 @@ class EquipmentSystem(System):
 #########################
 # define what a player is
 #########################
-player_factory = Assemblage()
 
 ########################
 # define what a room is
