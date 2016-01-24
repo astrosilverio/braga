@@ -7,7 +7,18 @@ from braga import Assemblage, Component, System, Aspect
 #################################################
 
 
+class Name(Component):  # for all entities
+
+    INITIAL_PROPERTIES = ['name']
+
+    def __init__(self, name=None):
+        self.name = name
+
+
 class Description(Component):  # for all entities
+
+    INITIAL_PROPERTIES = ['description']
+
     def __init__(self, description=None):
         self.description = description
 
@@ -163,19 +174,19 @@ class EquipmentSystem(System):
 # define what a player is
 #########################
 
-player_factory = Assemblage(components=[Description, Container, Moveable, ExpelliarmusSkill])
+player_factory = Assemblage(components=[Name, Description, Container, Moveable, ExpelliarmusSkill])
 
 ########################
 # define what a room is
 ########################
 
-room_factory = Assemblage(components=[Description, Container, Mappable])
+room_factory = Assemblage(components=[Name, Description, Container, Mappable])
 
 #######################
 # define what a wand is
 #######################
 
-wand_factory = Assemblage(components={Equipment: {'equipment_type': 'wand'}, Moveable: {}, Loyalty: {}})
+wand_factory = Assemblage(components={Name: {}, Equipment: {'equipment_type': 'wand'}, Moveable: {}, Loyalty: {}})
 
 ################################################
 # instatiate a room, two players, and two wands
