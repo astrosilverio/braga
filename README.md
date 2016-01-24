@@ -17,7 +17,7 @@ Entities represent whole "things"--like a cat. Components are groups of attribut
 
 To give an entity, like a cat, abilities, the cat needs to be associated with components, specifically instances of components. For example, to give the cat the quality of being alive, give the cat an instance of the `Living` component class; that `Living` instance will store whether on not the cat is alive.
 
-The S of ECS is for System; Systems let you group together Entities for simultaneous updates. I don't really know how threads work right now so this is just a skeleton.
+The S of ECS is for System; Systems let you group together Entities for simultaneous updates, and provide a service interface for making changes to Entities with a specified Component profile.
 
 ### Why I am writing this package
 
@@ -65,9 +65,7 @@ ECS is kinda clunky if you have to separately define each component for each ent
 
 ```
 # factory setup work
-> cat_factory = Assemblage()
-> cat_factory.add_component(Alive)
-> cat_factory.add_component(Portable)
+> cat_factory = Assemblage([Alive, Portable])
 > cat_factory.add_component(Container)
 
 # start using factory to make cats
