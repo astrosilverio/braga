@@ -49,37 +49,9 @@ class Moveable(Component):
 
 class Equipment(Component):
 
-    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
+    INITIAL_PROPERTIES = ['equipment_type']
 
-    def __init__(self, equipment_type, bearer=None):
-        self.bearer = bearer
-        self.equipment_type = equipment_type
-
-
-class Headgear(Component):
-
-    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
-
-    def __init__(self, equipment_type, bearer=None):
-        self.bearer = bearer
-        self.equipment_type = equipment_type
-
-
-class Footgear(Component):
-
-    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
-
-    def __init__(self, equipment_type, bearer=None):
-        self.bearer = bearer
-        self.equipment_type = equipment_type
-
-
-class BigEquipment(Equipment):
-
-    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
-
-    def __init__(self, equipment_type, bearer=None):
-        self.bearer = bearer
+    def __init__(self, equipment_type):
         self.equipment_type = equipment_type
 
 
@@ -95,7 +67,6 @@ class ExpelliarmusSkill(Component):
     def __init__(self):
         self.skill = 0
 
-# class AlohomoraSkill(Component):
 
 #####################################
 # define systems to manage components
@@ -129,42 +100,33 @@ class ContainerSystem(System):
 class EquipmentSystem(System):
     def __init__(self):
         # super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
-        self.equipment = defaultdict(self.make_equipment_dict)
+        self.equipment = defaultdict(list)
 
-    def make_equipment_dict(self):
-        return {'equipment': [], 'headgear': None, 'footgear': None}
-
-    def equip(self, bearer, item):
+    def equip(self, bearer, item, auto_update=False):
         if not self.can_player_equip_item(bearer, item):
             raise ValueError("You cannot equip that at this time")
-        setattr(bearer, item.equipment_type, item)
-        if item.has_component(BigEquipment):
-            self.equipment[bearer]['equipment'].append(item)
-        if item.has_component(Equipment):
-            self.equipment[bearer]['equipment'].append(item)
-        else:
-            self.equipment[bearer]['headgear'] = item
+        self.equipment[bearer].append(item)
         bearer.equipment = self.equipment[bearer]
+        if auto_update:
+            self.update()
 
-    def unequip(self, bearer, item):
+    def unequip(self, bearer, item, auto_update=False):
+        self.equipment[bearer].remove(item)
+        bearer.equipment = self.equipment[bearer]
         delattr(bearer, item.equipment_type)
-        if item.has_component(BigEquipment):
-            self.equipment[bearer]['equipment'].remove(item)
-        if item.has_component(Equipment):
-            self.equipment[bearer]['equipment'].remove(item)
-        else:
-            self.equipment[bearer]['headgear'] = None
+        if auto_update:
+            self.update()
 
     def update(self):
-        pass
+        for player, equipped_items in self.equipment.iteritems():
+            for item in equipped_items:
+                setattr(player, item.equipment_type, item)
 
     def can_player_equip_item(self, bearer, item):
-        if item.has_component(BigEquipment):
-            return len(self.equipment[bearer]['equipment']) == 0
         if item.has_component(Equipment):
-            return len(self.equipment[bearer]['equipment']) < 2
+            return len(self.equipment[bearer]) < 2
         else:
-            return not self.equipment[bearer]['headgear']
+            return False
 
 
 # LoyaltySystem -- keeps track of what is loyal to who
