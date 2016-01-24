@@ -32,9 +32,8 @@ class Mappable(Component):  # Mappable -- for room
         self.paths = paths if paths else dict()
 
 
-class Moveable(Component):  # Moveable -- for player and wand
-    def __init__(self, location):
-        self.location = location
+class Moveable(Component):
+    pass
 
 
 class Equipment(Component):
@@ -72,14 +71,26 @@ class BigEquipment(Equipment):
         self.bearer = bearer
         self.equipment_type = equipment_type
 
-# Loyalty -- for wand
-# class ExpelliarmusSkill(Component):
+
+class Loyalty(Component):
+
+    INITIAL_PROPERTIES = ['owner']
+
+    def __init__(self, owner=None):
+        self.owner = owner
+
+
+class ExpelliarmusSkill(Component):
+    def __init__(self):
+        self.skill = 0
 
 # class AlohomoraSkill(Component):
 
 #####################################
 # define systems to manage components
 #####################################
+
+
 class DescriptionSystem(System):
     def __init__(self):
         super(DescriptionSystem, self).__init__(aspect=Aspect(all_of=set(Description)))
