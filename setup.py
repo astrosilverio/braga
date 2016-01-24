@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='braga',
-      version='0.3',
+      version='0.4.0',
       description='Toy Entity-Component system',
       url='http://github.com/astrosilverio/braga',
       author='astrosilverio',
