@@ -100,33 +100,20 @@ class ContainerSystem(System):
 class EquipmentSystem(System):
     def __init__(self):
         # super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
-        self.equipment = defaultdict(list)
+        self.equipment = defaultdict(lambda: None)
 
     def equip(self, bearer, item):
-        if not self.can_player_equip_item(bearer, item):
+        if self.equipment[bearer]:
             raise ValueError("You cannot equip that at this time")
-        self.equipment[bearer].append(item)
-        bearer.equipment = self.equipment[bearer]
+        self.equipment[bearer] = item
         setattr(bearer, item.equipment_type, item)
 
     def unequip(self, bearer, item):
-        self.equipment[bearer].remove(item)
-        bearer.equipment = self.equipment[bearer]
+        del self.equipment[bearer]
         delattr(bearer, item.equipment_type)
 
     def update(self):
         pass
-
-    def can_player_equip_item(self, bearer, item):
-        return (item.has_component(Equipment) and
-                self._bearer_has_enough_hands(bearer) and
-                self._bearer_not_already_equipping_other_instance(bearer, item))
-
-    def _bearer_has_enough_hands(self, bearer):
-        return len(self.equipment[bearer]) < 2
-
-    def _bearer_not_already_equipping_other_instance(self, bearer, item):
-        return not hasattr(bearer, item.equipment_type)
 
 
 # LoyaltySystem -- keeps track of what is loyal to who
