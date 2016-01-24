@@ -163,13 +163,19 @@ class EquipmentSystem(System):
 # define what a player is
 #########################
 
+player_factory = Assemblage(components=[Description, Container, Moveable, ExpelliarmusSkill])
+
 ########################
 # define what a room is
 ########################
 
+room_factory = Assemblage(components=[Description, Container, Mappable])
+
 #######################
 # define what a wand is
 #######################
+
+wand_factory = Assemblage(components={Equipment: {'equipment_type': 'wand'}, Moveable: {}, Loyalty: {}})
 
 ################################################
 # instatiate a room, two players, and two wands
