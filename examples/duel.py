@@ -8,7 +8,7 @@ from braga import Assemblage, Component, System, Aspect
 
 
 class Description(Component):  # for all entities
-    def __init__(self, description):
+    def __init__(self, description=None):
         self.description = description
 
 
@@ -37,23 +37,38 @@ class Moveable(Component):  # Moveable -- for player and wand
         self.location = location
 
 
-class Equipment(Component):  # Equipment -- for wand
-    def __init__(self, bearer, equipment_type):
+class Equipment(Component):
+
+    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
+
+    def __init__(self, equipment_type, bearer=None):
         self.bearer = bearer
         self.equipment_type = equipment_type
+
 
 class Headgear(Component):
-    def __init__(self, bearer, equipment_type):
+
+    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
+
+    def __init__(self, equipment_type, bearer=None):
         self.bearer = bearer
         self.equipment_type = equipment_type
+
 
 class Footgear(Component):
-    def __init__(self, bearer, equipment_type):
+
+    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
+
+    def __init__(self, equipment_type, bearer=None):
         self.bearer = bearer
         self.equipment_type = equipment_type
 
-class BigEquipment(Equipment):  # like 11-ft pole
-    def __init__(self, bearer, equipment_type):
+
+class BigEquipment(Equipment):
+
+    INITIAL_PROPERTIES = ['bearer', 'equipment_type']
+
+    def __init__(self, equipment_type, bearer=None):
         self.bearer = bearer
         self.equipment_type = equipment_type
 
