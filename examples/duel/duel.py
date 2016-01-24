@@ -102,31 +102,31 @@ class EquipmentSystem(System):
         # super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
         self.equipment = defaultdict(list)
 
-    def equip(self, bearer, item, auto_update=False):
+    def equip(self, bearer, item):
         if not self.can_player_equip_item(bearer, item):
             raise ValueError("You cannot equip that at this time")
         self.equipment[bearer].append(item)
         bearer.equipment = self.equipment[bearer]
-        if auto_update:
-            self.update()
+        setattr(bearer, item.equipment_type, item)
 
-    def unequip(self, bearer, item, auto_update=False):
+    def unequip(self, bearer, item):
         self.equipment[bearer].remove(item)
         bearer.equipment = self.equipment[bearer]
         delattr(bearer, item.equipment_type)
-        if auto_update:
-            self.update()
 
     def update(self):
-        for player, equipped_items in self.equipment.iteritems():
-            for item in equipped_items:
-                setattr(player, item.equipment_type, item)
+        pass
 
     def can_player_equip_item(self, bearer, item):
-        if item.has_component(Equipment):
-            return len(self.equipment[bearer]) < 2
-        else:
-            return False
+        return (item.has_component(Equipment) and
+                self._bearer_has_enough_hands(bearer) and
+                self._bearer_not_already_equipping_other_instance(bearer, item))
+
+    def _bearer_has_enough_hands(self, bearer):
+        return len(self.equipment[bearer]) < 2
+
+    def _bearer_not_already_equipping_other_instance(self, bearer, item):
+        return not hasattr(bearer, item.equipment_type)
 
 
 # LoyaltySystem -- keeps track of what is loyal to who
