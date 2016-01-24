@@ -114,9 +114,6 @@ class ContainerSystem(System):
     def print_inventory(self, container):
         pass
 
-# MappableSystem -- keeps track of how rooms are connected?
-# MoveableSystem -- keeps track of who holds things?
-
 
 class EquipmentSystem(System):
     def __init__(self):
@@ -124,40 +121,39 @@ class EquipmentSystem(System):
         self.equipment = defaultdict(self.make_equipment_dict)
 
     def make_equipment_dict(self):
-        return {'Equipment': [], 'Headgear': None, 'Footgear': None}
+        return {'equipment': [], 'headgear': None, 'footgear': None}
 
     def equip(self, bearer, item):
         if not self.can_player_equip_item(bearer, item):
             raise ValueError("You cannot equip that at this time")
         setattr(bearer, item.equipment_type, item)
         if item.has_component(BigEquipment):
-            self.equipment[bearer]['Equipment'].append(item)
+            self.equipment[bearer]['equipment'].append(item)
         if item.has_component(Equipment):
-            self.equipment[bearer]['Equipment'].append(item)
+            self.equipment[bearer]['equipment'].append(item)
         else:
-            self.equipment[bearer]['Headgear'] = item
+            self.equipment[bearer]['headgear'] = item
         bearer.equipment = self.equipment[bearer]
 
     def unequip(self, bearer, item):
         delattr(bearer, item.equipment_type)
         if item.has_component(BigEquipment):
-            self.equipment[bearer]['Equipment'].remove(item)
+            self.equipment[bearer]['equipment'].remove(item)
         if item.has_component(Equipment):
-            self.equipment[bearer]['Equipment'].remove(item)
+            self.equipment[bearer]['equipment'].remove(item)
         else:
-            self.equipment[bearer]['Headgear'] = None
+            self.equipment[bearer]['headgear'] = None
 
     def update(self):
         pass
 
     def can_player_equip_item(self, bearer, item):
         if item.has_component(BigEquipment):
-            return len(self.equipment[bearer]['Equipment']) == 0
+            return len(self.equipment[bearer]['equipment']) == 0
         if item.has_component(Equipment):
-            return len(self.equipment[bearer]['Equipment']) < 2
+            return len(self.equipment[bearer]['equipment']) < 2
         else:
-            return not self.equipment[bearer]['Headgear']
-
+            return not self.equipment[bearer]['headgear']
 
 
 # LoyaltySystem -- keeps track of what is loyal to who
