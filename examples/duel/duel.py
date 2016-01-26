@@ -2,11 +2,10 @@ from collections import defaultdict
 
 from braga import Assemblage, Component, System, Aspect
 
-#################################################
-# define components for players, rooms, and wand
-#################################################
 
-
+#################################################
+# Define components for players, rooms, and wand
+#################################################
 class Name(Component):  # for all entities
 
     INITIAL_PROPERTIES = ['name']
@@ -23,28 +22,21 @@ class Description(Component):  # for all entities
         self.description = description
 
 
-class Container(Component):  # Container -- for room and player
-    def __init__(self, inventory=None):
-        self._inventory = inventory if inventory else set()
-
-    @property
-    def inventory(self):
-        return self._inventory
-
-    def add_entity(self, entity):
-        self._inventory.add(entity)
-
-    def remove_entity(self, entity):
-        self._inventory.remove(entity)
+class Container(Component):
+    pass
 
 
-class Mappable(Component):  # Mappable -- for room
+class Mappable(Component):
     def __init__(self, paths=None):
         self.paths = paths if paths else dict()
 
 
 class Moveable(Component):
-    pass
+
+    INITIAL_PROPERTIES = ['location']
+
+    def __init__(self, location=None):
+        self.location = location
 
 
 class Equipment(Component):
@@ -69,37 +61,38 @@ class ExpelliarmusSkill(Component):
 
 
 #####################################
-# define systems to manage components
+# Define systems to manage components
 #####################################
-
-
-class DescriptionSystem(System):
-    def __init__(self):
-        super(DescriptionSystem, self).__init__(aspect=Aspect(all_of=set(Description)))
-
-    def update(self):  # work this out later, rn have static descriptions
-        pass
-
-
 class ContainerSystem(System):
-    def __init__(self):
-        super(ContainerSystem, self).__init__(aspect=Aspect(all_of=set(Container)))
+    def __init__(self, world, auto_update=False):
+        super(ContainerSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Container])))
+        self.inventories = defaultdict(set)
+        self.auto_update = auto_update
+        for entity in self.world.entities_with_aspect(Aspect(all_of=set([Moveable]))):
+            self.inventories[entity.location].add(entity)
+        self.update()
 
-    def update(self):  # have it do sanity checks?
-        pass
+    def update(self):
+        for entity in self.world.entities_with_aspect(self.aspect):
+            setattr(entity, 'inventory', self.inventories[entity])
 
-    def move(self, thing, new_container, old_container):
+    def move(self, thing, new_container, auto_update=False):
+        if not thing.has_component(Moveable):
+            raise ValueError("You cannot move this item")
+        if not new_container in self.aspect:
+            raise ValueError("Invalid destination")
+        old_container = thing.location
         thing.location = new_container
-        new_container.add_entity(thing)
-        old_container.remove_entity(thing)
-
-    def print_inventory(self, container):
-        pass
+        self.inventories[new_container].add(thing)
+        if old_container:
+            self.inventories[old_container].remove(thing)
+        if auto_update or self.auto_update:
+            self.update()
 
 
 class EquipmentSystem(System):
-    def __init__(self):
-        # super(EquipmentSystem, self).__init__(aspect=Aspect(all_of=set(Equipment)))
+    def __init__(self, world):
+        super(EquipmentSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Equipment])))
         self.equipment = defaultdict(lambda: None)
 
     def equip(self, bearer, item):
@@ -116,27 +109,20 @@ class EquipmentSystem(System):
         pass
 
 
-# LoyaltySystem -- keeps track of what is loyal to who
-# ExpelliarmusSkillSystem -- ??
-
 #########################
-# define what a player is
+# Define what a player is
 #########################
 
 player_factory = Assemblage(components=[Name, Description, Container, Moveable, ExpelliarmusSkill])
 
 ########################
-# define what a room is
+# Define what a room is
 ########################
 
 room_factory = Assemblage(components=[Name, Description, Container, Mappable])
 
 #######################
-# define what a wand is
+# Define what a wand is
 #######################
 
 wand_factory = Assemblage(components={Name: {}, Equipment: {'equipment_type': 'wand'}, Moveable: {}, Loyalty: {}})
-
-################################################
-# instatiate a room, two players, and two wands
-################################################
