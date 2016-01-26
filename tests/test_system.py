@@ -1,16 +1,18 @@
 import unittest
+from mock import Mock
 
 from braga import System
 
 
 class BadSystem(System):
-    pass
+    def __init__(self):
+        super(BadSystem, self).__init__(world=Mock())
 
 
 class GoodSystem(System):
 
     def __init__(self):
-        super(GoodSystem, self).__init__()
+        super(GoodSystem, self).__init__(world=Mock())
 
     def update(self):
         pass

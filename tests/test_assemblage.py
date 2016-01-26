@@ -1,12 +1,14 @@
 import unittest
 
-from braga import Entity, Assemblage
+from braga import Entity, Assemblage, World
 from tests.fixtures import Alive, Portable, Container
 
 
 class TestAssemblage(unittest.TestCase):
 
     def setUp(self):
+        self.world = World()
+
         self.human = Entity()
         self.human.components.add(Container())
 
@@ -100,3 +102,12 @@ class TestAssemblage(unittest.TestCase):
         self.assertTrue(isinstance(zombie_cat, Entity))
         self.assertFalse(zombie_cat.alive)
         self.assertTrue(zombie_cat.is_portable)
+
+    def test_attaching_entity_to_world(self):
+        cat_factory = Assemblage(world=self.world, components=[Alive, Portable, Container])
+        cat = cat_factory.make()
+        self.assertIn(cat, self.world.entities)
+
+        backpack_factory = Assemblage(components=[Portable, Container])
+        backpack = backpack_factory.make(world=self.world)
+        self.assertIn(backpack, self.world.entities)
