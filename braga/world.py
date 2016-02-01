@@ -9,7 +9,11 @@ class World(object):
     def entities_with_aspect(self, aspect):
         return set([entity for entity in self.entities if entity in aspect])
 
-    def make_entity(self):
-        new_entity = Entity()
+    def make_entity(self, assemblage=None, **kwargs):
+        if not assemblage:
+            new_entity = Entity()
+        else:
+            new_entity = assemblage.make(**kwargs)
+
         self.entities.add(new_entity)
         return new_entity

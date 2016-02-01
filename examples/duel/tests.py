@@ -57,12 +57,12 @@ class TestContainerSystem(unittest.TestCase):
 
     def setUp(self):
         self.world = World()
-        bucket_factory = Assemblage(world=self.world, components=[duel.Container])
-        self.bucket_one = bucket_factory.make()
-        self.bucket_two = bucket_factory.make()
+        bucket_factory = Assemblage(components=[duel.Container])
+        self.bucket_one = self.world.make_entity(bucket_factory)
+        self.bucket_two = self.world.make_entity(bucket_factory)
 
-        self.thing_factory = Assemblage(world=self.world, components=[duel.Moveable])
-        self.thing = self.thing_factory.make(location=self.bucket_one)
+        self.thing_factory = Assemblage(components=[duel.Moveable])
+        self.thing = self.world.make_entity(self.thing_factory, location=self.bucket_one)
 
         self.container_system = duel.ContainerSystem(world=self.world, auto_update=True)
 
