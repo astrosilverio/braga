@@ -5,6 +5,7 @@ from braga.aspect import Aspect
 
 
 class System(object):
+    """Handler for modifying and updating Entities with a particular pattern of Components."""
 
     __metaclass__ = abc.ABCMeta
 

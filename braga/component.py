@@ -1,4 +1,5 @@
 class Component(object):
+    """Base class to be inherited by user-defined Component types."""
 
     INITIAL_PROPERTIES = []
 
