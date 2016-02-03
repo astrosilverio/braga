@@ -1,21 +1,30 @@
 import unittest
 
-from braga import Entity, Assemblage, World
+from braga import Assemblage, World
 from examples.duel import duel
 
 
 class TestEquipmentSystem(unittest.TestCase):
 
     def setUp(self):
-        self.player = Entity()
+        self.world = World()
+        self.player = self.world.make_entity(Assemblage([duel.EquipmentBearing]))
 
-        self.wand_factory = Assemblage(components={duel.Equipment: {'equipment_type': 'wand'}})
-        self.wand = self.wand_factory.make()
+        self.wand_factory = Assemblage({duel.Equipment: {'equipment_type': 'wand'}})
+        self.wand = self.world.make_entity(self.wand_factory)
 
-        self.equipment_system = duel.EquipmentSystem(world=World())
+        self.equipment_system = duel.EquipmentSystem(world=self.world, auto_update=True)
 
     def test_player_has_no_equipment(self):
         self.assertFalse(hasattr(self.player, 'wand'))
+
+    def test_nonbearer_item_cannot_equip_equipment(self):
+        second_wand = self.world.make_entity(self.wand_factory)
+
+        with self.assertRaises(ValueError) as e:
+            self.equipment_system.equip(self.wand, second_wand)
+
+        self.assertEqual(e.exception.message, "That cannot equip other items")
 
     def test_player_equips_an_item(self):
         self.equipment_system.equip(self.player, self.wand)
@@ -28,7 +37,7 @@ class TestEquipmentSystem(unittest.TestCase):
         """
         self.equipment_system.equip(self.player, self.wand)
 
-        second_wand = self.wand_factory.make()
+        second_wand = self.world.make_entity(self.wand_factory)
 
         with self.assertRaises(ValueError) as e:
             self.equipment_system.equip(self.player, second_wand)
@@ -47,7 +56,7 @@ class TestEquipmentSystem(unittest.TestCase):
         self.equipment_system.equip(self.player, self.wand)
         self.equipment_system.unequip(self.player, self.wand)
 
-        second_wand = self.wand_factory.make()
+        second_wand = self.world.make_entity(self.wand_factory)
         self.equipment_system.equip(self.player, second_wand)
 
         self.assertEqual(self.player.wand, second_wand)

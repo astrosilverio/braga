@@ -29,6 +29,11 @@ class Container(Component):
     pass
 
 
+class EquipmentBearing(Component):
+    """Can use Equipment. For players."""
+    pass
+
+
 class Mappable(Component):
     """ Ability to be part of a map, stores links to other objects on map.
         For rooms only.
@@ -107,17 +112,21 @@ class ContainerSystem(System):
 
 class EquipmentSystem(System):
     """Manager for Equipment and its bearers."""
-    def __init__(self, world):
-        super(EquipmentSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Equipment])))
+    def __init__(self, world, auto_update=False):
+        super(EquipmentSystem, self).__init__(world=world, aspect=Aspect(all_of=set([EquipmentBearing])))
         self.equipment = defaultdict(lambda: None)
+        self.auto_update = auto_update
         self.update()
 
-    def equip(self, bearer, item):
+    def equip(self, bearer, item, auto_update=False):
         """Equip an Entity with another Entity"""
+        if not bearer in self:
+            raise ValueError("That cannot equip other items")
         if self.equipment[bearer]:
             raise ValueError("You cannot equip that at this time")
         self.equipment[bearer] = item
-        setattr(bearer, item.equipment_type, item)
+        if auto_update or self.auto_update:
+            self.update()
 
     def unequip(self, bearer, item):
         """Unequip an Entity from the Entity equipping it."""
@@ -125,7 +134,10 @@ class EquipmentSystem(System):
         delattr(bearer, item.equipment_type)
 
     def update(self):
-        pass
+        for entity in self.entities:
+            item = self.equipment[entity]
+            if item:
+                setattr(entity, item.equipment_type, item)
 
 
 #########################

@@ -4,6 +4,7 @@ from examples.duel.duel import Description
 from examples.duel.duel import Mappable
 from examples.duel.duel import Moveable
 from examples.duel.duel import Equipment
+from examples.duel.duel import EquipmentBearing
 from examples.duel.duel import Loyalty
 from examples.duel.duel import ExpelliarmusSkill
 
