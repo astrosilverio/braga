@@ -21,6 +21,11 @@ class System(object):
     def __contains__(self, entity):
         return entity in self.aspect
 
+    @property
+    def entities(self):
+        """Set of Entities in the World with this Aspect"""
+        return self.world.entities_with_aspect(self.aspect)
+
     @abc.abstractmethod
     def update(self):
         """Updates the entities in this system"""

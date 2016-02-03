@@ -87,7 +87,7 @@ class ContainerSystem(System):
 
     def update(self):
         """Updates the `inventory` attribute on all Containers in the World"""
-        for entity in self.world.entities_with_aspect(self.aspect):
+        for entity in self.entities:
             setattr(entity, 'inventory', self.inventories[entity])
 
     def move(self, thing, new_container, auto_update=False):
@@ -110,6 +110,7 @@ class EquipmentSystem(System):
     def __init__(self, world):
         super(EquipmentSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Equipment])))
         self.equipment = defaultdict(lambda: None)
+        self.update()
 
     def equip(self, bearer, item):
         """Equip an Entity with another Entity"""
