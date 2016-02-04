@@ -26,6 +26,8 @@ The S of ECS is for System; Systems let you group together Entities for simultan
 * World -- collects all Entities and Systems for a given project
 
 ## Usage
+
+See [my duel example]() for a sample game setup.
 ### Entities
 If you intend to make an Entity for use in a particular project, make the Entity and add Components through the World for your project (see below). If you are just messing around, instantiate an Entity with `Entity()`. Entities are created with a uuid.
 
@@ -43,40 +45,6 @@ class Alive(Component):
 		self.alive = False
 ```
 Here, the `Alive` Component type stores an attribute that indicates whether the cat or tree or other biological Entity is living or dead, as well as a method that will allow the cat or tree to expire.
-
-The attributes and methods that are on Components are accessible from the Entities that the Components are attached to via...
-
-#### Fake Object-Orientation
-
-When I started playing with ECS, the first thing I noticed was that I was annoyed that attributes did not belong to Entities. While that is the design feature that makes ECS so extensible / unique / useful, it is also really irritating if every time you want to check if the cat is alive, you have to check that attribute on a _Component_ on the cat instead of the cat itself.
-
-Besides making it annoying for me to mess around with Entities in the repl, I realized that the extra overhead required to access attributes would complicate my text adventure code. I don't want `hogwarts` to know how its `Room`s and `Thing`s and `Player`s work under the hood. So I violated the guiding principle of ECS a bit and am faking object orientation by rewriting `__getattr__` on Entities.
-
-The familiar way of accessing attributes with dots, like `cat.components`, is just sugar for `getattr(cat, 'components')`. Normally, `__getattr__` will raise an `AttributeError` if an attribute is not found. If I wasn't faking object-orientation, then `cat.components` would not raise an `AttributeError` but `cat.alive` would, because the `cat` Entity does not have an attribute `alive`. But if you hack the Entity's `__getattr__` like so:
-
-```
-    def __getattr__(self, name):
-        for component in self.components:
-            try:
-                attr = getattr(component, name)
-            except AttributeError:
-                pass
-            else:
-                return attr
-        raise AttributeError
-```
-
-Then the Entity will search through all of its Components to see if any of them have the attribute before throwing up its hands to say "I don't have that attribute". The result? I can access attributes that are stored in the Entity's Components as if they were actually stored on the Entity itself. Fake object orientation! For example, in the case of a cat with an Alive Component attached to it...
-
-```
-> cat = Entity()
-> cat.components.add(Alive())
-> cat.alive
-  True
-> cat.die()
-> cat.alive
-  False
-```
 
 ### Systems
 
