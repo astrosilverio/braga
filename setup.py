@@ -1,6 +1,6 @@
 from setuptools import setup
 
-__version__ = '0.5.7'
+__version__ = '0.5.8'
 
 if __name__ == '__main__':
     setup(name='braga',
