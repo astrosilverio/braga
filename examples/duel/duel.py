@@ -122,6 +122,8 @@ class EquipmentSystem(System):
         """Equip an Entity with another Entity"""
         if not bearer in self:
             raise ValueError("That cannot equip other items")
+        if not item in self.world.entities_with_aspect(Aspect(all_of=set([Equipment]))):
+            raise ValueError("That item cannot be equipped")
         if self.equipment[bearer]:
             raise ValueError("You cannot equip that at this time")
         self.equipment[bearer] = item
@@ -144,7 +146,7 @@ class EquipmentSystem(System):
 # Define what a player is
 #########################
 
-player_factory = Assemblage(components=[Name, Description, Container, Moveable, ExpelliarmusSkill])
+player_factory = Assemblage(components=[Name, Description, Container, Moveable, EquipmentBearing, ExpelliarmusSkill])
 
 ########################
 # Define what a room is
