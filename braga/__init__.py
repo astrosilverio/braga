@@ -6,7 +6,3 @@ from braga.system import System
 from braga.assemblage import Assemblage
 from braga.aspect import Aspect
 from braga.world import World
-
-sys.path.append("..")
-from examples import duel
-sys.path.remove("..")
