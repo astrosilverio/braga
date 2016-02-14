@@ -1,4 +1,7 @@
+from collections import defaultdict
+
 from braga.entity import Entity
+from braga.system import System
 
 
 class World(object):
@@ -6,6 +9,7 @@ class World(object):
 
     def __init__(self):
         self.entities = set()
+        self.systems = defaultdict(lambda: None)
 
     def entities_with_aspect(self, aspect):
         """Returns a set of Entities in the World with a particular Aspect."""
@@ -28,3 +32,21 @@ class World(object):
 
         self.entities.add(new_entity)
         return new_entity
+
+    def add_system(self, system_type):
+        """ Creates a System for this World.
+            :param system_type: user-defined System class that the new System should be an instance of
+            :type system_type: System
+
+            Returns a System.
+        """
+
+        if not issubclass(system_type, System):
+            raise ValueError("{} is not a type of System".format(system_type.__name__))
+        if self.systems[system_type]:
+            raise ValueError("World already contains a System of type {}".format(repr(system_type)))
+
+        new_system = system_type(world=self)
+        self.systems[system_type] = new_system
+
+        return new_system
