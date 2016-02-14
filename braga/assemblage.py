@@ -39,8 +39,12 @@ class Assemblage(object):
         for component_type, init_kwargs in self.component_types.iteritems():
             instance_kwargs = init_kwargs
             instance_kwargs.update({k:v for k,v in kwargs.iteritems() if k in component_type.INITIAL_PROPERTIES})
+            kwargs = {k:v for k,v in kwargs.iteritems() if k not in component_type.INITIAL_PROPERTIES}
 
             component = component_type(**instance_kwargs)
             entity.components.add(component)
+
+        if kwargs:
+            raise ValueError("Unknown initial properties: {}".format(', '.join(kwargs.keys())))
 
         return entity

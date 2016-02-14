@@ -102,3 +102,11 @@ class TestAssemblage(unittest.TestCase):
         self.assertTrue(isinstance(zombie_cat, Entity))
         self.assertFalse(zombie_cat.alive)
         self.assertTrue(zombie_cat.is_portable)
+
+    def test_unknown_initial_properties_at_production_time(self):
+        cat_factory = Assemblage(components=[Alive, Portable])
+
+        with self.assertRaises(ValueError) as e:
+            cat_factory.make(live=True, aliv=True)  # misspell some properties
+
+        self.assertEqual(e.exception.message, "Unknown initial properties: live, aliv")
