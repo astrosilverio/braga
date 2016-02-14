@@ -27,7 +27,7 @@ The S of ECS is for System; Systems let you group together Entities for simultan
 
 ## Usage
 
-See [my duel example]() for a sample game setup.
+See [my duel example](https://github.com/astrosilverio/braga/blob/master/braga/examples/duel/duel.py) for a sample game setup.
 ### Entities
 If you intend to make an Entity for use in a particular project, make the Entity and add Components through the World for your project (see below). If you are just messing around, instantiate an Entity with `Entity()`. Entities are created with a uuid.
 
