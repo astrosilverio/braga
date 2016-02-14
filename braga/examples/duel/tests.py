@@ -1,7 +1,7 @@
 import unittest
 
 from braga import Assemblage, World
-from examples.duel import duel
+from braga.examples import duel
 
 
 class TestEquipmentSystem(unittest.TestCase):
