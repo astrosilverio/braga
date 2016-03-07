@@ -6,3 +6,5 @@ from braga.system import System
 from braga.assemblage import Assemblage
 from braga.aspect import Aspect
 from braga.world import World
+
+from braga.version import __version__

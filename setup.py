@@ -1,6 +1,10 @@
+import os
 from setuptools import setup
 
-__version__ = '0.6.3'
+version_file_py = os.path.join(os.path.split(__file__)[0], "braga/version.py")
+with open(version_file_py) as version_file:
+    __version__ = ""
+    exec(compile(version_file.read(), version_file_py, 'exec'))
 
 if __name__ == '__main__':
     setup(name='braga',
