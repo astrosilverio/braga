@@ -33,6 +33,13 @@ class World(object):
         self.entities.add(new_entity)
         return new_entity
 
+    def destroy_entity(self, entity):
+        """Removes entity from the world."""
+        try:
+            self.entities.remove(entity)
+        except KeyError:
+            raise ValueError("{0} does not contain {1}".format(repr(self), repr(entity)))
+
     def add_system(self, system_type):
         """ Creates a System for this World.
             :param system_type: user-defined System class that the new System should be an instance of

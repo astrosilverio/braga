@@ -20,6 +20,7 @@ class Assemblage(object):
                 self.component_types[component]
 
     def add_component(self, component_type, **kwargs):
+        """Adds a component type to the factory."""
         self.component_types[component_type].update(**kwargs)
 
     def make(self, **kwargs):

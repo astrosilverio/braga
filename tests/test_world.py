@@ -44,6 +44,22 @@ class TestWorld(unittest.TestCase):
         self.assertEqual(new_entity.x, 1)
         self.assertEqual(new_entity.v_y, 2)
 
+    def test_destroy_entity_removes_entity_from_world(self):
+        new_entity = self.world.make_entity()
+        self.assertIn(new_entity, self.world.entities)
+
+        self.world.destroy_entity(new_entity)
+        self.assertNotIn(new_entity, self.world.entities)
+
+    def test_destroy_entity_raises_if_not_entity(self):
+        unrelated_entity = Entity()
+        self.assertNotIn(unrelated_entity, self.world.entities)
+
+        with self.assertRaises(ValueError) as e:
+            self.world.destroy_entity(unrelated_entity)
+
+        self.assertEqual(e.exception.message, "{0} does not contain {1}".format(repr(self.world), repr(unrelated_entity)))
+
     def test_add_system_registers_system(self):
         new_system = self.world.add_system(SomeKindOfSystem)
 
