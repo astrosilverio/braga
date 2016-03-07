@@ -1,4 +1,5 @@
 # Braga
+[![Build Status](https://travis-ci.org/astrosilverio/braga.svg?branch=master)](https://travis-ci.org/astrosilverio/braga)
 
 An Entity-Component-System system. 
 
