@@ -44,3 +44,7 @@ class Aspect(object):
 
     def select_entities(self, entities):
         return set([entity for entity in entities if self.is_interested_in(entity)])
+
+    @classmethod
+    def make_from(cls, assemblage):
+        return cls(all_of=set(assemblage.component_types.keys()))

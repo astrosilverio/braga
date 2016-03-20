@@ -1,6 +1,6 @@
 import unittest
 
-from braga import Aspect, Entity
+from braga import Aspect, Entity, Assemblage
 from tests.fixtures import Alive, Portable, Container, Moveable, Location
 
 
@@ -67,3 +67,16 @@ class TestAspect(unittest.TestCase):
         self.assertFalse(aspect.is_interested_in(self.zombie))
 
         self.assertEqual(aspect.select_entities(self.entities), set([self.cat]))
+
+    def test_make_aspect_from_assemblage(self):
+        factory = Assemblage(components=[Portable])
+
+        aspect = Aspect.make_from(factory)
+
+        self.assertTrue(aspect.is_interested_in(self.cat))
+        self.assertFalse(aspect.is_interested_in(self.plant))
+        self.assertFalse(aspect.is_interested_in(self.bathtub))
+        self.assertTrue(aspect.is_interested_in(self.brains))
+        self.assertFalse(aspect.is_interested_in(self.zombie))
+
+        self.assertEqual(aspect.select_entities(self.entities), set([self.cat, self.brains]))
