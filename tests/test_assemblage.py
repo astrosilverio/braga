@@ -16,10 +16,7 @@ class TestAssemblage(unittest.TestCase):
         self.food.components.add(Portable())
 
     def test_assemblage_makes_entity(self):
-        cat_factory = Assemblage()
-        cat_factory.add_component(Alive)
-        cat_factory.add_component(Portable)
-
+        cat_factory = Assemblage([Alive, Portable])
         cat = cat_factory.make()
 
         self.assertTrue(isinstance(cat, Entity))
@@ -27,11 +24,7 @@ class TestAssemblage(unittest.TestCase):
         self.assertTrue(cat.is_portable)
 
     def test_assembled_entity_interacts_normally(self):
-        cat_factory = Assemblage()
-        cat_factory.add_component(Alive)
-        cat_factory.add_component(Portable)
-        cat_factory.add_component(Container)
-
+        cat_factory = Assemblage([Alive, Portable, Container])
         cat = cat_factory.make()
 
         # pick up cat
@@ -43,24 +36,18 @@ class TestAssemblage(unittest.TestCase):
         self.assertIn(self.food, cat.inventory)
 
     def test_assembling_entity_with_initial_conditions(self):
-        zombie_cat_factory = Assemblage()
-        zombie_cat_factory.add_component(Alive, alive=False)
-
+        zombie_cat_factory = Assemblage([Alive], alive=False)
         zombie_cat = zombie_cat_factory.make()
         self.assertFalse(zombie_cat.alive)
         zombie_cat.resurrect()
         self.assertTrue(zombie_cat.alive)
 
-        fed_cat_factory = Assemblage()
-        fed_cat_factory.add_component(Container, inventory=set([self.food]))
-
+        fed_cat_factory = Assemblage([Container], inventory=set([self.food]))
         fed_cat = fed_cat_factory.make()
-        self.assertIn(self.food, fed_cat.inventory)
+        self.assertEqual(self.food.uuid, fed_cat.inventory.pop().uuid)
 
     def test_assembled_cats_are_independent(self):
-        cat_factory = Assemblage()
-        cat_factory.add_component(Alive)
-        cat_factory.add_component(Portable)
+        cat_factory = Assemblage([Alive, Portable])
 
         my_cat = cat_factory.make()
         stray_cat = cat_factory.make()
@@ -69,22 +56,6 @@ class TestAssemblage(unittest.TestCase):
         self.assertNotEqual(my_cat.uuid, stray_cat.uuid)
         self.assertIn(my_cat, self.human.inventory)
         self.assertNotIn(stray_cat, self.human.inventory)
-
-    def test_giving_factory_initial_components_in_dict(self):
-        zombie_cat_factory = Assemblage(components={Alive: {'alive': False}, Portable: {}})
-        zombie_cat = zombie_cat_factory.make()
-
-        self.assertTrue(isinstance(zombie_cat, Entity))
-        self.assertFalse(zombie_cat.alive)
-        self.assertTrue(zombie_cat.is_portable)
-
-    def test_giving_factory_initial_components_in_list(self):
-        cat_factory = Assemblage(components=[Alive, Portable])
-        cat = cat_factory.make()
-
-        self.assertTrue(isinstance(cat, Entity))
-        self.assertTrue(cat.alive)
-        self.assertTrue(cat.is_portable)
 
     def test_adding_component_with_initial_components(self):
         cat_factory = Assemblage(components=[Portable])

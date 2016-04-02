@@ -6,18 +6,18 @@ from braga import Entity
 class Assemblage(object):
     """Factory for making Entities with particular combinations of Components."""
 
-    def __init__(self, components=None):
+    def __init__(self, components, **kwargs):
         """ `components` can either be a list of Component classes
             or a dictionary, where the keys are
             Component classes and the values are dictionaries, where
             the key-value pairs are kwargs for the __init__ methods of the Component class
         """
         self.component_types = defaultdict(dict)
-        if components and isinstance(components, dict):
-            self.component_types.update(components)
-        elif components and isinstance(components, list):
-            for component in components:
-                self.component_types[component]
+        for component in components:
+            self.component_types[component].update(
+                {k:v for k,v in kwargs.iteritems() if k in component.INITIAL_PROPERTIES}
+            )
+            kwargs = {k:v for k,v in kwargs.iteritems() if k not in component.INITIAL_PROPERTIES}
 
     def add_component(self, component_type, **kwargs):
         """Adds a component type to the factory."""

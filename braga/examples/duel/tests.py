@@ -10,7 +10,7 @@ class TestEquipmentSystem(unittest.TestCase):
         self.world = World()
         self.player = self.world.make_entity(Assemblage([duel.EquipmentBearing]))
 
-        self.wand_factory = Assemblage({duel.Equipment: {'equipment_type': 'wand'}})
+        self.wand_factory = Assemblage([duel.Equipment], equipment_type='wand')
         self.wand = self.world.make_entity(self.wand_factory)
 
         self.equipment_system = duel.EquipmentSystem(world=self.world, auto_update=True)

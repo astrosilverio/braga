@@ -186,4 +186,4 @@ room_factory = Assemblage(components=[Description, Container, Mappable, Name])
 # Define what a wand is
 #######################
 
-wand_factory = Assemblage(components={Name: {}, Description: {}, Equipment: {'equipment_type': 'wand'}, Moveable: {}, Loyalty: {}})
+wand_factory = Assemblage(components=[Name, Description, Equipment, Moveable, Loyalty], equipment_type='wand')
