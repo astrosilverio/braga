@@ -11,6 +11,10 @@ class World(object):
         self.entities = set()
         self.systems = defaultdict(lambda: None)
 
+    def refresh(self):
+        for system in self.systems.values():
+            system.update()
+
     def entities_with_aspect(self, aspect):
         """Returns a set of Entities in the World with a particular Aspect."""
         return set([entity for entity in self.entities if entity in aspect])
