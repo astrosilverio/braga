@@ -55,10 +55,11 @@ class Moveable(Component):
 class Equipment(Component):
     """Ability to be equipped. Stores what type of equipment the Entity is. For wands."""
 
-    INITIAL_PROPERTIES = ['equipment_type']
+    INITIAL_PROPERTIES = ['equipment_type', 'bearer']
 
-    def __init__(self, equipment_type):
+    def __init__(self, equipment_type, bearer=None):
         self.equipment_type = equipment_type
+        self.bearer = bearer
 
 
 class Loyalty(Component):
@@ -142,6 +143,7 @@ class EquipmentSystem(System):
             item = self.equipment[entity]
             if item:
                 setattr(entity, item.equipment_type, item)
+                item.bearer = entity
 
 
 class NameSystem(System):
