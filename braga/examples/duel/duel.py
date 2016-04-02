@@ -92,6 +92,8 @@ class ContainerSystem(System):
 
     def update(self):
         """Updates the `inventory` attribute on all Containers in the World"""
+        for entity in self.world.entities_with_aspect(Aspect(all_of=set([Moveable]))):
+            self.inventories[entity.location].add(entity)
         for entity in self.entities:
             setattr(entity, 'inventory', self.inventories[entity])
 
@@ -142,6 +144,30 @@ class EquipmentSystem(System):
                 setattr(entity, item.equipment_type, item)
 
 
+class NameSystem(System):
+    """Associates strings with Entities."""
+    def __init__(self, world):
+        super(NameSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Name])))
+        self.names = defaultdict(lambda: None)
+        self.update()
+
+    @property
+    def tokens(self):
+        return self.names.keys()
+
+    def get_entity_from_name(self, name):
+        return self.names.get(name)
+
+    def add_alias(self, alias, entity):
+        self.names[alias] = entity
+
+    def update(self):
+        for entity in self.entities:
+            if entity.name in self.names.keys():
+                raise ValueError("Duplicate entity names")
+            self.names[entity.name] = entity
+
+
 #########################
 # Define what a player is
 #########################
@@ -152,7 +178,7 @@ player_factory = Assemblage(components=[Name, Description, Container, Moveable, 
 # Define what a room is
 ########################
 
-room_factory = Assemblage(components=[Description, Container, Mappable])
+room_factory = Assemblage(components=[Description, Container, Mappable, Name])
 
 #######################
 # Define what a wand is
