@@ -10,10 +10,15 @@ class World(object):
     def __init__(self):
         self.entities = set()
         self.systems = defaultdict(lambda: None)
+        self.timer = 0
+        self.subscriptions = defaultdict(list)
 
     def refresh(self):
         for system in self.systems.values():
             system.update()
+
+    def step(self):
+        self.timer += 1
 
     def entities_with_aspect(self, aspect):
         """Returns a set of Entities in the World with a particular Aspect."""
@@ -61,3 +66,18 @@ class World(object):
         self.systems[system_type] = new_system
 
         return new_system
+
+    def publish(self, event, *involved_entities):
+        """Publishes an event to the World."""
+        callbacks = self.subscriptions[event]
+        extra_output = '\n'.join([callback(*involved_entities) for callback in callbacks])
+        self.step()
+        return extra_output
+
+    def subscribe(self, event_name, callback):
+        if not hasattr(callback, '__call__'):
+            raise TypeError("Only callables can be registered as effects of an event")
+        self.subscriptions[event_name].append(callback)
+
+    def unsubscribe(self, event_name, callback):
+        self.subscriptions[event_name].remove(callback)

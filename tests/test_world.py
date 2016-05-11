@@ -80,3 +80,37 @@ class TestWorld(unittest.TestCase):
             self.world.add_system(SomeKindOfSystem)
 
         self.assertEqual(e.exception.message, "World already contains a System of type {}".format(repr(SomeKindOfSystem)))
+
+
+class TestSignals(unittest.TestCase):
+
+    def setUp(self):
+        self.world = World()
+        self.door = self.world.make_entity()
+        self.oiled_door = self.world.make_entity()
+        self.room = self.world.make_entity()
+
+    def creaking_door(self, door_uuid):
+        if door_uuid == self.oiled_door.uuid:
+            return "The door silently glides open"
+        else:
+            return "The door's rusty hinges make a horrible screeching noise."
+
+    def test_subscribe_adds_callback(self):
+        self.world.subscribe("door opens", self.creaking_door)
+
+        self.assertEqual(len(self.world.subscriptions["door opens"]), 1)
+
+    def test_unsubscribe_removes_callback(self):
+        self.world.subscribe("door opens", self.creaking_door)
+        self.world.unsubscribe("door opens", self.creaking_door)
+
+        self.assertEqual(len(self.world.subscriptions["door opens"]), 0)
+
+    def test_publish_calls_callback(self):
+        self.world.subscribe("door opens", self.creaking_door)
+        extra_output = self.world.publish("door opens", self.door.uuid)
+        self.assertIn("horrible screeching noise", extra_output)
+
+        extra_output = self.world.publish("door opens", self.oiled_door.uuid)
+        self.assertIn("silently glides", extra_output)

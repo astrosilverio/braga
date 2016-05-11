@@ -109,8 +109,7 @@ class ContainerSystem(System):
         self.inventories[new_container].add(thing)
         if old_container:
             self.inventories[old_container].remove(thing)
-        if auto_update or self.auto_update:
-            self.update()
+        self.update()
 
 
 class EquipmentSystem(System):
@@ -130,8 +129,7 @@ class EquipmentSystem(System):
         if self.equipment[bearer]:
             raise ValueError("You cannot equip that at this time")
         self.equipment[bearer] = item
-        if auto_update or self.auto_update:
-            self.update()
+        self.update()
 
     def unequip(self, bearer, item):
         """Unequip an Entity from the Entity equipping it."""
@@ -161,12 +159,12 @@ class NameSystem(System):
         return self.names.get(name)
 
     def add_alias(self, alias, entity):
+        if alias in self.names.keys():
+            raise ValueError("Duplicate entity names")
         self.names[alias] = entity
 
     def update(self):
         for entity in self.entities:
-            if entity.name in self.names.keys():
-                raise ValueError("Duplicate entity names")
             self.names[entity.name] = entity
 
 
