@@ -1,3 +1,5 @@
+import re
+import string
 from collections import defaultdict
 
 from braga import Assemblage, Component, System, Aspect
@@ -22,6 +24,11 @@ class Description(Component):
 
     def __init__(self, description=None):
         self.description = description
+        self.description_tags = self.get_tags()
+
+    def get_tags(self):
+        full_path_tags = set([tag for text, tag, spec, conv in string.Formatter().parse(self.description) if tag is not None])
+        return set([re.match("\w+", tag) for tag in full_path_tags])
 
 
 class Container(Component):
@@ -166,6 +173,29 @@ class NameSystem(System):
     def update(self):
         for entity in self.entities:
             self.names[entity.name] = entity
+
+
+class DescriptionSystem(System):
+    """Updates descriptions for Entities."""
+    def __init__(self, world):
+        super(DescriptionSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Description])))
+        self.description_values = defaultdict(lambda: dict)
+        self.update()
+
+    def populate_tag_for_entity(self, tag, entity):
+        if tag == 'self':
+            value = entity
+
+        value = self.world.systems[NameSystem].get_entity_from_name(tag)
+        self.description_values[entity][tag] = value
+
+    def populate_tags_for_entity(self, entity):
+        if not self.description_values[entity][tag]:
+            self.populate_tag_for_entity(self, tag, entity)
+
+    def update(self):
+        for entity in self.entities:
+            self.populate_tags_for_entity(entity)
 
 
 #########################
