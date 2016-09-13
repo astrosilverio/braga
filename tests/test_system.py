@@ -35,12 +35,6 @@ class TestSystem(unittest.TestCase):
         with self.assertRaises(TypeError):
             BadSystem()
 
-    # def test_has_thread(self):
-    #     good = GoodSystem('world')
-    #     self.assertFalse(good.thread)
-    #     good.start()
-    #     self.assertTrue(good.thread)
-
     def test_child_methods_are_decorated(self):
         world = World()
         system = GoodSystem(world)

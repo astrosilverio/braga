@@ -1,5 +1,4 @@
 import abc
-import threading
 from functools import wraps
 
 from braga.aspect import Aspect
@@ -24,7 +23,6 @@ class System(object):
     __metaclass__ = abc.ABCMeta
 
     def __init__(self, world, aspect=None):
-        self.thread = None
         self.world = world
         self.aspect = aspect if aspect else Aspect()
 
@@ -38,10 +36,6 @@ class System(object):
                 setattr(cls, name, call_hooks(obj))
         new_system = object.__new__(cls, *args, **kwargs)
         return new_system
-
-    # def start(self):
-    #     self.thread = threading.Thread(name=type(self).__name__, target=self.update)
-    #     self.thread.start()
 
     def __contains__(self, entity):
         return entity in self.aspect
