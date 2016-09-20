@@ -11,7 +11,7 @@ class World(object):
         self.entities = set()
         self.systems = defaultdict(lambda: None)
         self.timer = 0
-        self.subscriptions = defaultdict(list)
+        self.subscriptions = defaultdict(lambda: defaultdict(lambda: {'after': [], 'before': []}))
 
     def refresh(self):
         for system in self.systems.values():
@@ -74,10 +74,11 @@ class World(object):
         self.step()
         return extra_output
 
-    def subscribe(self, event_name, callback):
+    def subscribe(self, system, method, callback, before=False, after=False):
         if not hasattr(callback, '__call__'):
-            raise TypeError("Only callables can be registered as effects of an event")
-        self.subscriptions[event_name].append(callback)
+            raise TypeError("Only callables can be registered as preactions or reactions")
 
-    def unsubscribe(self, event_name, callback):
-        self.subscriptions[event_name].remove(callback)
+        if before:
+            self.subscriptions[system][method]['before'].append(callback)
+        if after:
+            self.subscriptions[system][method]['after'].append(callback)

@@ -9,6 +9,9 @@ class SomeKindOfSystem(System):
     def __init__(self, world):
         super(SomeKindOfSystem, self).__init__(world=world)
 
+    def do_something(self, thing):
+        pass
+
     def update(self):
         pass
 
@@ -81,36 +84,24 @@ class TestWorld(unittest.TestCase):
 
         self.assertEqual(e.exception.message, "World already contains a System of type {}".format(repr(SomeKindOfSystem)))
 
+    def test_can_subscribe_functions_to_systems(self):
+        def check_to_run_before_method(system, thing):
+            pass
 
-class TestSignals(unittest.TestCase):
+        def check_to_run_after_method(system, thing):
+            pass
 
-    def setUp(self):
-        self.world = World()
-        self.door = self.world.make_entity()
-        self.oiled_door = self.world.make_entity()
-        self.room = self.world.make_entity()
+        system = self.world.add_system(SomeKindOfSystem)
 
-    def creaking_door(self, door_uuid):
-        if door_uuid == self.oiled_door.uuid:
-            return "The door silently glides open"
-        else:
-            return "The door's rusty hinges make a horrible screeching noise."
+        self.world.subscribe(system, 'do_something', check_to_run_before_method, before=True)
+        self.world.subscribe(system, 'do_something', check_to_run_after_method, after=True)
 
-    def test_subscribe_adds_callback(self):
-        self.world.subscribe("door opens", self.creaking_door)
+        self.assertIn(check_to_run_before_method, self.world.subscriptions[system]['do_something']['before'])
+        self.assertIn(check_to_run_after_method, self.world.subscriptions[system]['do_something']['after'])
 
-        self.assertEqual(len(self.world.subscriptions["door opens"]), 1)
+    def test_cannot_subscribe_non_functions_to_systems(self):
+        system = self.world.add_system(SomeKindOfSystem)
 
-    def test_unsubscribe_removes_callback(self):
-        self.world.subscribe("door opens", self.creaking_door)
-        self.world.unsubscribe("door opens", self.creaking_door)
-
-        self.assertEqual(len(self.world.subscriptions["door opens"]), 0)
-
-    def test_publish_calls_callback(self):
-        self.world.subscribe("door opens", self.creaking_door)
-        extra_output = self.world.publish("door opens", self.door.uuid)
-        self.assertIn("horrible screeching noise", extra_output)
-
-        extra_output = self.world.publish("door opens", self.oiled_door.uuid)
-        self.assertIn("silently glides", extra_output)
+        for thing in ['string', [], {}, system]:
+            with self.assertRaises(TypeError):
+                self.world.subscribe(system, 'do_something', thing)
