@@ -218,8 +218,7 @@ class DescriptionSystem(System):
         unpopulated_placeholders = re.findall(entity._description.pattern, populated_description)
         if unpopulated_placeholders:
             self.populate_placeholders_for_entity(entity)
-            return self.populate_description(entity)
-        return populated_description
+        return entity._description.safe_substitute(self.description_values[entity])
 
     def update(self):
         for entity in self.entities:
