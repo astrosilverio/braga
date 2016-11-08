@@ -27,7 +27,7 @@ class Description(Component):
     INITIAL_PROPERTIES = ['description']
 
     def __init__(self, description=None):
-        self.description = BragaTemplate(description)
+        self._description = BragaTemplate(description)
 
 
 class Container(Component):
@@ -209,13 +209,13 @@ class DescriptionSystem(System):
         self.update_placeholder_for_entity(entity, placeholder, value)
 
     def populate_placeholders_for_entity(self, entity):
-        placeholder_matches = re.findall(entity.description.pattern, entity.description.template)
+        placeholder_matches = re.findall(entity._description.pattern, entity._description.template)
         for placeholder in placeholder_matches:
             self._populate_placeholder_for_entity(placeholder[2], entity)
 
     def populate_description(self, entity):
-        populated_description = entity.description.safe_substitute(self.description_values[entity])
-        unpopulated_placeholders = re.findall(entity.description.pattern, populated_description)
+        populated_description = entity._description.safe_substitute(self.description_values[entity])
+        unpopulated_placeholders = re.findall(entity._description.pattern, populated_description)
         if unpopulated_placeholders:
             self.populate_placeholders_for_entity(entity)
             return self.populate_description(entity)
@@ -223,7 +223,8 @@ class DescriptionSystem(System):
 
     def update(self):
         for entity in self.entities:
-            self.populate_description(entity)
+            description = self.populate_description(entity)
+            setattr(entity, 'description', description)
 
 
 #########################

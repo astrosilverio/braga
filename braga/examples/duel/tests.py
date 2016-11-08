@@ -149,3 +149,13 @@ class TestDescriptionSystem(unittest.TestCase):
         self.assertEqual(
             self.description_system.populate_description(player),
             "Is she as good at duelling as she is at transfiguration? Hermione's skill level is 15.")
+
+    def test_update_sets_description_field_on_entity(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="Is she as good at duelling as she is at transfiguration? Hermione's skill level is ${self.skill}.",
+            skill=15)
+        self.world.refresh()
+
+        self.assertEqual(player.description, self.description_system.populate_description(player))
