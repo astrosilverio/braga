@@ -97,3 +97,55 @@ class TestContainerSystem(unittest.TestCase):
 
         self.assertEqual(e.exception.message, "Invalid destination")
         self.assertEqual(self.thing.location, self.bucket_one)
+
+
+class TestNameSystem(unittest.TestCase):
+
+    def setUp(self):
+        self.world = World()
+        self.item_factory = Assemblage(components=[duel.Name])
+        self.item = self.world.make_entity(self.item_factory, name='item one')
+
+        self.name_system = duel.NameSystem(world=self.world)
+
+    def test_entity_retrievable_from_name(self):
+        entity = self.name_system.get_entity_from_name('item one')
+        self.assertEqual(entity, self.item)
+
+    def test_none_returned_for_unknown_name(self):
+        self.assertIsNone(self.name_system.get_entity_from_name('asdfdsa'))
+
+    def test_aliases_can_be_created(self):
+        self.name_system.add_alias('cool item', self.item)
+
+        self.assertIn('cool item', self.name_system.names.keys())
+        self.assertEqual(self.name_system.names['cool item'], self.item)
+
+    def test_no_dupliate_names_can_be_added(self):
+        with self.assertRaises(ValueError) as e:
+            self.name_system.add_alias('item one', self.item)
+
+        self.assertEqual(e.exception.message, 'Duplicate entity names')
+
+    def test_names_in_tokens_property(self):
+        self.assertEqual(self.name_system.tokens, self.name_system.names.keys())
+
+
+class TestDescriptionSystem(unittest.TestCase):
+
+    def setUp(self):
+        self.world = World()
+        self.world.add_system(duel.NameSystem)
+        self.description_system = self.world.add_system(duel.DescriptionSystem)
+
+    def test_chained_reference_resolves_correctly(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="Is she as good at duelling as she is at transfiguration? Hermione's skill level is ${self.skill}.",
+            skill=15)
+        self.world.refresh()
+
+        self.assertEqual(
+            self.description_system.populate_description(player),
+            "Is she as good at duelling as she is at transfiguration? Hermione's skill level is 15.")

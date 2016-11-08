@@ -1,8 +1,12 @@
 import re
-import string
+from string import Template
 from collections import defaultdict
 
 from braga import Assemblage, Component, System, Aspect
+
+
+class BragaTemplate(Template):
+    idpattern = '[\w\.]+'
 
 
 #################################################
@@ -23,12 +27,7 @@ class Description(Component):
     INITIAL_PROPERTIES = ['description']
 
     def __init__(self, description=None):
-        self.description = description
-        self.description_tags = self.get_tags()
-
-    def get_tags(self):
-        full_path_tags = set([tag for text, tag, spec, conv in string.Formatter().parse(self.description) if tag is not None])
-        return set([re.match("\w+", tag) for tag in full_path_tags])
+        self.description = BragaTemplate(description)
 
 
 class Container(Component):
@@ -81,8 +80,10 @@ class Loyalty(Component):
 class ExpelliarmusSkill(Component):
     """Ability to cast expelliarmus, stores skill at casting expelliarmus. For players."""
 
-    def __init__(self):
-        self.skill = 0
+    INITIAL_PROPERTIES = ['skill']
+
+    def __init__(self, skill=0):
+        self.skill = skill
 
 
 #####################################
@@ -179,23 +180,50 @@ class DescriptionSystem(System):
     """Updates descriptions for Entities."""
     def __init__(self, world):
         super(DescriptionSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Description])))
-        self.description_values = defaultdict(lambda: dict)
+        self.description_values = defaultdict(dict)
         self.update()
 
-    def populate_tag_for_entity(self, tag, entity):
-        if tag == 'self':
+    def update_placeholder_for_entity(self, entity, placeholder, value):
+        self.description_values[entity][placeholder] = value
+
+    def _retrieve_value_for_placeholder(self, placeholder, entity):
+        references = placeholder.split('.')
+        value = self.world.systems[NameSystem].get_entity_from_name(references[0])
+        if references[0] == 'self':
             value = entity
+        if not value:
+            raise ValueError('No entity with name {} exists'.format(references[0]))
+        for item in placeholder.split('.')[1:]:
+            if not hasattr(value, item):
+                raise ValueError('Entity {0} has no attribute {1}'.format(value, item))
+            value = getattr(value, item)
 
-        value = self.world.systems[NameSystem].get_entity_from_name(tag)
-        self.description_values[entity][tag] = value
+        return value
 
-    def populate_tags_for_entity(self, entity):
-        if not self.description_values[entity][tag]:
-            self.populate_tag_for_entity(self, tag, entity)
+    def _populate_placeholder_for_entity(self, placeholder, entity):
+        if hasattr(entity, placeholder):
+            value = entity.get('placeholder')
+        else:
+            value = self._retrieve_value_for_placeholder(placeholder, entity)
+
+        self.update_placeholder_for_entity(entity, placeholder, value)
+
+    def populate_placeholders_for_entity(self, entity):
+        placeholder_matches = re.findall(entity.description.pattern, entity.description.template)
+        for placeholder in placeholder_matches:
+            self._populate_placeholder_for_entity(placeholder[2], entity)
+
+    def populate_description(self, entity):
+        populated_description = entity.description.safe_substitute(self.description_values[entity])
+        unpopulated_placeholders = re.findall(entity.description.pattern, populated_description)
+        if unpopulated_placeholders:
+            self.populate_placeholders_for_entity(entity)
+            return self.populate_description(entity)
+        return populated_description
 
     def update(self):
         for entity in self.entities:
-            self.populate_tags_for_entity(entity)
+            self.populate_description(entity)
 
 
 #########################
