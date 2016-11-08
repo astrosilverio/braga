@@ -159,3 +159,15 @@ class TestDescriptionSystem(unittest.TestCase):
         self.world.refresh()
 
         self.assertEqual(player.description, self.description_system.populate_description(player))
+
+    def test_unresolvable_descriptions(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="Cleverest witch of her ${self.generation}.",
+            skill=15)
+
+        with self.assertRaises(ValueError) as e:
+            self.world.refresh()
+
+        self.assertEqual(e.exception.message, "Entity {} has no attribute generation".format(player))
