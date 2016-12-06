@@ -171,3 +171,63 @@ class TestDescriptionSystem(unittest.TestCase):
             self.world.refresh()
 
         self.assertEqual(e.exception.message, "Entity {} has no attribute generation".format(player))
+
+    def test_binary_conditional_description_with_simple_true_condition(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="${Is skilled at duelling. ?if self.skill}",
+            skill=15)
+        self.world.refresh()
+
+        self.assertEqual(player.description, 'Is skilled at duelling.')
+
+    def test_binary_conditional_description_with_simple_false_condition(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="${Is skilled at duelling. ?if self.skill}",
+            skill=0)
+        self.world.refresh()
+
+        self.assertEqual(player.description, '')
+
+    def test_ternary_conditional_description_with_simple_true_condition(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="${Is skilled at duelling. ?if self.skill :else Has no duelling ability!}",
+            skill=1)
+        self.world.refresh()
+
+        self.assertEqual(player.description, 'Is skilled at duelling.')
+
+    def test_ternary_conditional_description_with_simple_false_condition(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="${Is skilled at duelling. ?if self.skill :else Has no duelling ability!}",
+            skill=0)
+        self.world.refresh()
+
+        self.assertEqual(player.description, 'Has no duelling ability!')
+
+    def test_ternary_conditional_description_when_condition_is_true(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="Hermione is ${very ?if self.skill > 8 :else averagely} skilled at duelling.",
+            skill=9)
+        self.world.refresh()
+
+        self.assertEqual(player.description, "Hermione is very skilled at duelling.")
+
+    def test_ternary_conditional_description_when_condition_is_false(self):
+        player = self.world.make_entity(
+            duel.player_factory,
+            name='Hermione Granger',
+            description="Hermione is ${very ?if self.skill > 8 :else averagely} skilled at duelling.",
+            skill=7)
+        self.world.refresh()
+
+        self.assertEqual(player.description, "Hermione is averagely skilled at duelling.")

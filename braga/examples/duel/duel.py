@@ -6,7 +6,7 @@ from braga import Assemblage, Component, System, Aspect
 
 
 class BragaTemplate(Template):
-    idpattern = '[\w\.]+'
+    idpattern = '[\w\.\?\:\s\!\,\>\<\=]+'
 
 
 #################################################
@@ -200,11 +200,41 @@ class DescriptionSystem(System):
 
         return value
 
+    def _evaluate_condition_for_entity(self, condition, entity):
+        if hasattr(entity, condition):
+            return entity.get(condition)
+        elif len(condition.split()) == 1:
+            return self._retrieve_value_for_placeholder(condition, entity)
+        elif len(condition.split()) != 3:
+            raise ValueError('I cannot process this condition right now {}'.format(condition))
+
+        first, string_operator, last = condition.split()
+        first_reference = self._retrieve_value_for_placeholder(first, entity)
+        eval_condition = (' ').join(['__ref', string_operator, last])
+
+        return eval(eval_condition, {'__ref': first_reference})
+
+    def _retrieve_value_for_compound_placeholder(self, placeholder, entity):
+        clauses = placeholder.split('?if')
+        if len(clauses) != 2:
+            return placeholder
+        value_if_true = clauses[0].rstrip()
+        condition_and_else = clauses[1].split(':else')
+        condition = condition_and_else[0].strip()
+        value_if_false = ''
+        if len(condition_and_else) == 2:
+            value_if_false = condition_and_else[1].lstrip()
+
+        return (value_if_true if self._evaluate_condition_for_entity(condition, entity)
+                else value_if_false)
+
     def _populate_placeholder_for_entity(self, placeholder, entity):
         if hasattr(entity, placeholder):
-            value = entity.get('placeholder')
-        else:
+            value = entity.get(placeholder)
+        elif len(placeholder.split()) == 1:
             value = self._retrieve_value_for_placeholder(placeholder, entity)
+        else:
+            value = self._retrieve_value_for_compound_placeholder(placeholder, entity)
 
         self.update_placeholder_for_entity(entity, placeholder, value)
 
