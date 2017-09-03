@@ -4,18 +4,6 @@ from braga import World, Entity, Assemblage, System
 from tests.fixtures import Moveable, Location
 
 
-class SomeKindOfSystem(System):
-
-    def __init__(self, world):
-        super(SomeKindOfSystem, self).__init__(world=world)
-
-    def do_something(self, thing):
-        pass
-
-    def update(self):
-        pass
-
-
 class TestWorld(unittest.TestCase):
 
     def setUp(self):
@@ -64,6 +52,7 @@ class TestWorld(unittest.TestCase):
         self.assertEqual(e.exception.message, "{0} does not contain {1}".format(repr(self.world), repr(unrelated_entity)))
 
     def test_add_system_registers_system(self):
+        self.skipTest('Functionality soon to be removed')
         new_system = self.world.add_system(SomeKindOfSystem)
 
         self.assertTrue(isinstance(new_system, System))
@@ -71,12 +60,14 @@ class TestWorld(unittest.TestCase):
         self.assertEqual(new_system.world, self.world)
 
     def test_add_system_rejects_non_systems(self):
+        self.skipTest('Functionality soon to be removed')
         with self.assertRaises(ValueError) as e:
             self.world.add_system(Assemblage)
 
         self.assertEqual(e.exception.message, "{} is not a type of System".format(Assemblage.__name__))
 
     def test_add_system_rejects_duplicate_systems(self):
+        self.skipTest('Functionality soon to be removed')
         self.world.add_system(SomeKindOfSystem)
 
         with self.assertRaises(ValueError) as e:
@@ -91,17 +82,30 @@ class TestWorld(unittest.TestCase):
         def check_to_run_after_method(system, thing):
             pass
 
-        system = self.world.add_system(SomeKindOfSystem)
+        some_kind_of_system = System(self.world)
 
-        self.world.subscribe(system, 'do_something', check_to_run_before_method, before=True)
-        self.world.subscribe(system, 'do_something', check_to_run_after_method, after=True)
+        self.world.subscribe(some_kind_of_system, 'do_something', check_to_run_before_method, before=True)
+        self.world.subscribe(some_kind_of_system, 'do_something', check_to_run_after_method, after=True)
 
-        self.assertIn(check_to_run_before_method, self.world.subscriptions[system]['do_something']['before'])
-        self.assertIn(check_to_run_after_method, self.world.subscriptions[system]['do_something']['after'])
+        self.assertIn(check_to_run_before_method, self.world.subscriptions[some_kind_of_system]['do_something']['before'])
+        self.assertIn(check_to_run_after_method, self.world.subscriptions[some_kind_of_system]['do_something']['after'])
 
-    def test_cannot_subscribe_non_functions_to_systems(self):
-        system = self.world.add_system(SomeKindOfSystem)
+    def test_cannot_subscribe_non_callables_to_systems(self):
+        class Foo(object):
+            pass
 
-        for thing in ['string', [], {}, system]:
+        foo = Foo()
+        some_kind_of_system = System(self.world)
+
+        for thing in ['string', [], {}, foo]:
             with self.assertRaises(TypeError):
-                self.world.subscribe(system, 'do_something', thing)
+                self.world.subscribe(some_kind_of_system, 'do_something', thing, after=True)
+
+    def test_must_choose_a_time_for_callback_to_be_called(self):
+        def callback_method(*args):
+            pass
+
+        some_kind_of_system = System(self.world)
+
+        with self.assertRaises(ValueError):
+            self.world.subscribe(some_kind_of_system, 'do_something', callback_method)
