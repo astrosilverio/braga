@@ -8,9 +8,9 @@ from braga.examples.duel.duel import EquipmentBearing
 from braga.examples.duel.duel import Loyalty
 from braga.examples.duel.duel import ExpelliarmusSkill
 
-from braga.examples.duel.duel import ContainerSystem
-from braga.examples.duel.duel import EquipmentSystem
-from braga.examples.duel.duel import NameSystem
+from braga.examples.duel.duel import container_system
+from braga.examples.duel.duel import equipment_system
+# from braga.examples.duel.duel import NameSystem
 
 from braga.examples.duel.duel import player_factory
 from braga.examples.duel.duel import room_factory

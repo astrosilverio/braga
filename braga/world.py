@@ -75,6 +75,9 @@ class World(object):
         return extra_output
 
     def subscribe(self, system, method, callback, before=False, after=False):
+        if not (before or after):
+            raise ValueError("You won't actually subscribe anything to anything unless you set before or after")
+
         if not hasattr(callback, '__call__'):
             raise TypeError("Only callables can be registered as preactions or reactions")
 
