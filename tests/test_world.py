@@ -1,5 +1,7 @@
 import unittest
 
+import six
+
 from braga import World, Entity, Assemblage, System
 from tests.fixtures import Moveable, Location
 
@@ -49,7 +51,12 @@ class TestWorld(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             self.world.destroy_entity(unrelated_entity)
 
-        self.assertEqual(e.exception.message, "{0} does not contain {1}".format(repr(self.world), repr(unrelated_entity)))
+        if six.PY2:
+            exception_message = e.exception.message
+        if six.PY3:
+            exception_message = str(e.exception)
+
+        self.assertEqual(exception_message, "{0} does not contain {1}".format(repr(self.world), repr(unrelated_entity)))
 
     def test_add_system_registers_system(self):
         self.skipTest('Functionality soon to be removed')

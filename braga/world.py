@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import six
+
 from braga.entity import Entity
 from braga.system import System
 
@@ -14,7 +16,7 @@ class World(object):
         self.subscriptions = defaultdict(lambda: defaultdict(lambda: {'after': [], 'before': []}))
 
     def refresh(self):
-        for system in self.systems.values():
+        for system in six.itervalues(self.systems):
             system.update()
 
     def step(self):

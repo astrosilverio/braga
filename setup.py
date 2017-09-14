@@ -15,4 +15,5 @@ if __name__ == '__main__':
           author_email='astrosilverio@gmail.com',
           license='MIT',
           packages=['braga'],
+          install_requires=['six'],
           zip_safe=False)

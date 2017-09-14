@@ -1,3 +1,5 @@
+import six
+
 class Aspect(object):
     """ Defines a pattern of Component types. Can be used to check if the set of components
         belonging to an Entity is consistent with the pattern.
@@ -47,4 +49,4 @@ class Aspect(object):
 
     @classmethod
     def make_from(cls, assemblage):
-        return cls(all_of=set(assemblage.component_types.keys()))
+        return cls(all_of=set(six.iterkeys(assemblage.component_types)))

@@ -1,7 +1,18 @@
 import unittest
 
+import six
+
 from braga import Assemblage, World
 from braga.examples import duel
+
+
+def get_exception_message(exception):
+    exception_message = ''
+    if six.PY2:
+        exception_message = exception.message
+    if six.PY3:
+        exception_message = str(exception)
+    return exception_message
 
 
 class TestEquipmentSystem(unittest.TestCase):
@@ -22,7 +33,7 @@ class TestEquipmentSystem(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             duel.equipment_system.equip(self.wand, second_wand)
 
-        self.assertEqual(e.exception.message, "That cannot equip other items")
+        self.assertEqual(get_exception_message(e.exception), "That cannot equip other items")
 
     def test_player_equips_an_item(self):
         duel.equipment_system.equip(self.player, self.wand)
@@ -40,7 +51,7 @@ class TestEquipmentSystem(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             duel.equipment_system.equip(self.player, second_wand)
 
-        self.assertEqual(e.exception.message, "You are already equipping an item of this type")
+        self.assertEqual(get_exception_message(e.exception), "You are already equipping an item of this type")
 
         self.assertEqual(self.player.wand, self.wand)
 
@@ -84,7 +95,7 @@ class TestContainerSystem(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             duel.container_system.move(bookcase, self.bucket_two)
 
-        self.assertEqual(e.exception.message, "You cannot move this item")
+        self.assertEqual(get_exception_message(e.exception), "You cannot move this item")
         self.assertEqual(self.bucket_two.inventory, set([]))
 
     def test_cannot_move_item_to_non_container(self):
@@ -92,5 +103,5 @@ class TestContainerSystem(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             duel.container_system.move(self.thing, new_thing)
 
-        self.assertEqual(e.exception.message, "Invalid destination")
+        self.assertEqual(get_exception_message(e.exception), "Invalid destination")
         self.assertEqual(self.thing.location, self.bucket_one)
