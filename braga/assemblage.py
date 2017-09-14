@@ -1,5 +1,6 @@
 from collections import defaultdict
-from copy import deepcopy
+
+import six
 
 from braga import Entity
 
@@ -16,9 +17,9 @@ class Assemblage(object):
         self.component_types = defaultdict(dict)
         for component in components:
             self.component_types[component].update(
-                {k:v for k,v in kwargs.iteritems() if k in component.INITIAL_PROPERTIES}
+                {k:v for k,v in six.iteritems(kwargs) if k in component.INITIAL_PROPERTIES}
             )
-            kwargs = {k:v for k,v in kwargs.iteritems() if k not in component.INITIAL_PROPERTIES}
+            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component.INITIAL_PROPERTIES}
 
     def add_component(self, component_type, **kwargs):
         """Adds a component type to the factory."""
@@ -38,15 +39,15 @@ class Assemblage(object):
 
         entity = Entity()
 
-        for component_type, init_kwargs in self.component_types.iteritems():
-            instance_kwargs = deepcopy(init_kwargs)
-            instance_kwargs.update({k:v for k,v in kwargs.iteritems() if k in component_type.INITIAL_PROPERTIES})
-            kwargs = {k:v for k,v in kwargs.iteritems() if k not in component_type.INITIAL_PROPERTIES}
+        for component_type, init_kwargs in six.iteritems(self.component_types):
+            instance_kwargs = init_kwargs
+            instance_kwargs.update({k:v for k,v in six.iteritems(kwargs) if k in component_type.INITIAL_PROPERTIES})
+            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component_type.INITIAL_PROPERTIES}
 
             component = component_type(**instance_kwargs)
             entity.components.add(component)
 
         if kwargs:
-            raise ValueError("Unknown initial properties: {}".format(', '.join(kwargs.keys())))
+            raise ValueError("Unknown initial properties: {}".format(', '.join(six.iterkeys(kwargs))))
 
         return entity

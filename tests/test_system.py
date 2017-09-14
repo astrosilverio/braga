@@ -22,7 +22,7 @@ class TestSystem(unittest.TestCase):
         def child_method(arg_one, kwarg_two=False):
             pass
 
-        self.assertIn('run_hooks', system.child_method.func_code.co_names)
+        self.assertIn('run_hooks', system.child_method.__code__.co_names)
 
     @patch('tests.test_system.before_child_method_runs')
     def test_child_methods_look_for_before_hooks(self, callback_mock):

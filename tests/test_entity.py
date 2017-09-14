@@ -1,5 +1,7 @@
 import unittest
 
+import six
+
 from braga import Entity, Component
 
 
@@ -49,12 +51,22 @@ class TestEntity(unittest.TestCase):
 
     def test_entity_display(self):
         cat = Entity()
-        self.assertEqual(repr(cat), "Entity({}) - set([])".format(cat.uuid))
+        display_str = '{}'
+        if six.PY2:
+            display_str = "Entity({}) - set([])"
+        if six.PY3:
+            display_str = "Entity({}) - set()"
+        self.assertEqual(repr(cat), display_str.format(cat.uuid))
 
         catalive = Alive()
         cat.components.add(catalive)
+        display_str = '{}'
+        if six.PY2:
+            display_str = "Entity({}) - set([Alive])".format(cat.uuid)
+        if six.PY3:
+            display_str = "Entity({})".format(cat.uuid) + " - {Alive}"
 
-        self.assertEqual(repr(cat), "Entity({}) - set([Alive])".format(cat.uuid))
+        self.assertEqual(repr(cat), display_str)
 
     def test_get_component(self):
         cat = Entity()

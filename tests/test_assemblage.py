@@ -1,5 +1,7 @@
 import unittest
 
+import six
+
 from braga import Entity, Assemblage, World
 from tests.fixtures import Alive, Portable, Container
 
@@ -80,4 +82,9 @@ class TestAssemblage(unittest.TestCase):
         with self.assertRaises(ValueError) as e:
             cat_factory.make(live=True, aliv=True)  # misspell some properties
 
-        self.assertEqual(e.exception.message, "Unknown initial properties: live, aliv")
+        if six.PY2:
+            exception_message = e.exception.message
+        if six.PY3:
+            exception_message = str(e.exception)
+
+        self.assertEqual(exception_message, "Unknown initial properties: live, aliv")

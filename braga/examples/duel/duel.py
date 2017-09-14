@@ -2,6 +2,8 @@ import re
 import string
 from collections import defaultdict
 
+import six
+
 from braga import Assemblage, Component, System, Aspect
 
 
@@ -144,15 +146,11 @@ class NameSystem(System):
         self.names = defaultdict(lambda: None)
         self.update()
 
-    @property
-    def tokens(self):
-        return self.names.keys()
-
     def get_entity_from_name(self, name):
         return self.names.get(name)
 
     def add_alias(self, alias, entity):
-        if alias in self.names.keys():
+        if alias in six.iterkeys(self.names):
             raise ValueError("Duplicate entity names")
         self.names[alias] = entity
 
