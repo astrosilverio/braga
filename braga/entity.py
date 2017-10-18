@@ -45,3 +45,10 @@ class Entity(object):
             else:
                 return attr
         raise AttributeError
+
+    @property
+    def component_values(self):
+        component_values = dict()
+        for component in self.components:
+            component_values.update(component.__dict__)
+        return component_values

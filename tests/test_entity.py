@@ -74,3 +74,10 @@ class TestEntity(unittest.TestCase):
         cat.components.add(catalive)
 
         self.assertEqual(cat.get_component(Alive), catalive)
+
+    def test_component_values(self):
+        cat = Entity()
+        catalive = Alive()
+        cat.components.add(catalive)
+
+        self.assertEqual(cat.component_values, {'_alive': True})
