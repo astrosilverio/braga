@@ -80,4 +80,4 @@ class TestEntity(unittest.TestCase):
         catalive = Alive()
         cat.components.add(catalive)
 
-        self.assertEqual(cat.component_values, {'_alive': True})
+        self.assertEqual(cat.component_values, {'Alive-_alive': True})

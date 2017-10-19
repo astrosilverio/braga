@@ -1,3 +1,4 @@
+import six
 import uuid
 
 
@@ -50,5 +51,6 @@ class Entity(object):
     def component_values(self):
         component_values = dict()
         for component in self.components:
-            component_values.update(component.__dict__)
+            component_name = component.__class__.__name__
+            component_values.update({'-'.join([component_name, k]):v for k,v in six.iteritems(component.__dict__)})
         return component_values
