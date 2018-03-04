@@ -17,9 +17,9 @@ class Assemblage(object):
         self.component_types = defaultdict(dict)
         for component in components:
             self.component_types[component].update(
-                {k:v for k,v in six.iteritems(kwargs) if k in component.INITIAL_PROPERTIES}
+                {k:v for k,v in six.iteritems(kwargs) if k in component.__slots__}
             )
-            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component.INITIAL_PROPERTIES}
+            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component.__slots__}
 
     def add_component(self, component_type, **kwargs):
         """Adds a component type to the factory."""
@@ -41,8 +41,8 @@ class Assemblage(object):
 
         for component_type, init_kwargs in six.iteritems(self.component_types):
             instance_kwargs = init_kwargs
-            instance_kwargs.update({k:v for k,v in six.iteritems(kwargs) if k in component_type.INITIAL_PROPERTIES})
-            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component_type.INITIAL_PROPERTIES}
+            instance_kwargs.update({k:v for k,v in six.iteritems(kwargs) if k in component_type.__slots__})
+            kwargs = {k:v for k,v in six.iteritems(kwargs) if k not in component_type.__slots__}
 
             component = component_type(**instance_kwargs)
             entity.components.add(component)

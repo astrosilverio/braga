@@ -9,7 +9,7 @@ class Manager(object):
         self.entities_by_component = dict()
 
         if not properties_to_register:
-            properties_to_register = self.component_type.INITIAL_PROPERTIES
+            properties_to_register = self.component_type.__slots__
         self.properties_to_register = properties_to_register
 
         for prop in self.properties_to_register:
