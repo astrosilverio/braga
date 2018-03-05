@@ -3,20 +3,16 @@ from braga import Component
 
 class Alive(Component):
 
-    INITIAL_PROPERTIES = ['alive']
+    __slots__ = ['alive']
 
     def __init__(self, alive=True):
-        self._alive = alive
-
-    @property
-    def alive(self):
-        return self._alive
+        self.alive = alive
 
     def die(self):
-        self._alive = False
+        self.alive = False
 
     def resurrect(self):
-        self._alive = True
+        self.alive = True
 
 
 class Portable(Component):
@@ -28,28 +24,24 @@ class Portable(Component):
 
 class Container(Component):
 
-    INITIAL_PROPERTIES = ['inventory']
+    __slots__ = ['inventory']
 
     def __init__(self, inventory=None):
-        self._inventory = set()
+        self.inventory = set()
         if inventory:
-            self._inventory |= inventory
-
-    @property
-    def inventory(self):
-        return self._inventory
+            self.inventory |= inventory
 
     def pick_up(self, thing):
         if hasattr(thing, 'is_portable'):
-            self._inventory.add(thing)
+            self.inventory.add(thing)
 
     def put_down(self, thing):
-        self._inventory.remove(thing)
+        self.inventory.remove(thing)
 
 
 class Moveable(Component):
 
-    INITIAL_PROPERTIES = ['v_x', 'v_y']
+    __slots__ = ['v_x', 'v_y']
 
     def __init__(self, v_x=0, v_y=0):
         self.v_x = v_x
@@ -58,7 +50,7 @@ class Moveable(Component):
 
 class Location(Component):
 
-    INITIAL_PROPERTIES = ['x', 'y']
+    __slots__ = ['x', 'y']
 
     def __init__(self, x=0, y=0):
         self.x = x

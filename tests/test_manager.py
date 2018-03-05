@@ -8,7 +8,7 @@ from braga import Component, Manager, Assemblage
 
 class ComponentWithState(Component):
 
-    INITIAL_PROPERTIES = ['number', 'letter']
+    __slots__ = ['number', 'letter']
 
     def __init__(self, number=None, letter=None):
         self.number = number

@@ -13,7 +13,7 @@ from braga import Assemblage, Component, System, Aspect
 class Name(Component):
     """A name for the Entity. For players and wands."""
 
-    INITIAL_PROPERTIES = ['name']
+    __slots__ = ['name']
 
     def __init__(self, name=None):
         self.name = name
@@ -22,11 +22,10 @@ class Name(Component):
 class Description(Component):
     """A description of the Entity. For all entities."""
 
-    INITIAL_PROPERTIES = ['description']
+    __slots__ = ['description']
 
     def __init__(self, description=None):
         self.description = description
-        self.description_tags = self.get_tags()
 
     def get_tags(self):
         full_path_tags = set([tag for text, tag, spec, conv in string.Formatter().parse(self.description) if tag is not None])
@@ -35,6 +34,9 @@ class Description(Component):
 
 class Container(Component):
     """Ability to have an inventory. For rooms and players."""
+
+    __slots__ = ['inventory']
+
     def __init__(self, inventory=None):
         self.inventory = inventory if inventory else set()
 
@@ -49,6 +51,8 @@ class Mappable(Component):
         For rooms only.
     """
 
+    __slots__ = ['paths']
+
     def __init__(self, paths=None):
         self.paths = paths if paths else dict()
 
@@ -56,7 +60,7 @@ class Mappable(Component):
 class Moveable(Component):
     """Ability to be moved, stores Entity's location. For players and wands."""
 
-    INITIAL_PROPERTIES = ['location']
+    __slots__ = ['location']
 
     def __init__(self, location=None):
         self.location = location
@@ -65,7 +69,7 @@ class Moveable(Component):
 class Equipment(Component):
     """Ability to be equipped. Stores what type of equipment the Entity is. For wands."""
 
-    INITIAL_PROPERTIES = ['equipment_type', 'bearer']
+    __slots__ = ['equipment_type', 'bearer']
 
     def __init__(self, equipment_type, bearer=None):
         self.equipment_type = equipment_type
@@ -75,7 +79,7 @@ class Equipment(Component):
 class Loyalty(Component):
     """Tracks what other Entity this Entity is loyal / belongs to. For wands."""
 
-    INITIAL_PROPERTIES = ['owner']
+    __slots__ = ['owner']
 
     def __init__(self, owner=None):
         self.owner = owner
@@ -83,6 +87,8 @@ class Loyalty(Component):
 
 class ExpelliarmusSkill(Component):
     """Ability to cast expelliarmus, stores skill at casting expelliarmus. For players."""
+
+    __slots__ = ['skill']
 
     def __init__(self):
         self.skill = 0
