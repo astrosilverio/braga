@@ -1,8 +1,9 @@
 import unittest
+from mock import patch
 
 import six
 
-from braga import Assemblage, World
+from braga import Assemblage, World, Manager
 from braga.examples import duel
 
 
@@ -105,3 +106,63 @@ class TestContainerSystem(unittest.TestCase):
 
         self.assertEqual(get_exception_message(e.exception), "Invalid destination")
         self.assertEqual(self.thing.location, self.bucket_one)
+
+
+class TestNameSystem(unittest.TestCase):
+
+    def setUp(self):
+        self.name_manager = Manager(duel.Name)
+
+    def test_get_entity_from_name_returns_appropriate_entity(self):
+        toothbrush = Assemblage(components=[duel.Name]).make(name='toothbrush')
+        self.name_manager.register(toothbrush)
+        expected_token = ('entity', toothbrush)
+
+        with patch.object(duel.duel, 'name_manager', self.name_manager):
+            lexed_value = duel.name_system.lex("toothbrush")
+
+        self.assertEqual(expected_token, lexed_value)
+
+    def test_get_entity_from_name_assumes_literal_if_entity_does_not_exist(self):
+        toothbrush = Assemblage(components=[duel.Name]).make(name='toothbrush')
+        self.name_manager.register(toothbrush)
+        expected_token = ('literal', "razor")
+
+        with patch.object(duel.duel, 'name_manager', self.name_manager):
+            lexed_value = duel.name_system.lex("razor")
+
+        self.assertEqual(expected_token, lexed_value)
+
+    def test_get_entity_from_multiword_token_returns_appropriate_entity(self):
+        toothpaste = Assemblage(components=[duel.Name]).make(name='toothpaste')
+        self.name_manager.register(toothpaste)
+        expected_token = ('entity', toothpaste)
+
+        with patch.object(duel.duel, 'name_manager', self.name_manager):
+            lexed_value = duel.name_system.lex("tube of toothpaste")
+
+        self.assertEqual(expected_token, lexed_value)
+
+    def test_get_token_for_verb_returns_appropriate_verb(self):
+        expected_token = ('verb', 'command_for_put_goes_here')
+        lexed_value = duel.name_system.lex('put')
+        self.assertEqual(expected_token, lexed_value)
+
+    def test_tokenizing_input_string_breaks_string_into_words(self):
+        tokenized_input = duel.name_system.tokenize("razor toothbrush")
+        self.assertEqual(tokenized_input, ["razor", "toothbrush"])
+
+    def test_tokenizing_input_string_catches_multiword_tokens(self):
+        tokenized_input = duel.name_system.tokenize("tube of toothpaste and floss")
+        self.assertEqual(tokenized_input, ["tube of toothpaste", "floss"])
+
+    def test_parsing_token_list_generates_appropriate_tree(self):
+        toothpaste = Assemblage(components=[duel.Name]).make(name='toothpaste')
+        toothbrush = Assemblage(components=[duel.Name]).make(name='toothbrush')
+        self.name_manager.register(toothpaste)
+        self.name_manager.register(toothbrush)
+
+        with patch.object(duel.duel, 'name_manager', self.name_manager):
+            parsed_input = duel.name_system.parse(["put", "toothpaste", "toothbrush"])
+
+        self.assertEqual(parsed_input, ['command_for_put_goes_here', toothpaste, toothbrush])

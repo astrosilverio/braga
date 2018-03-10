@@ -10,8 +10,10 @@ from braga.examples.duel.duel import ExpelliarmusSkill
 
 from braga.examples.duel.duel import container_system
 from braga.examples.duel.duel import equipment_system
-# from braga.examples.duel.duel import NameSystem
+from braga.examples.duel.duel import name_system
 
 from braga.examples.duel.duel import player_factory
 from braga.examples.duel.duel import room_factory
 from braga.examples.duel.duel import wand_factory
+
+from braga.examples.duel.duel import name_manager

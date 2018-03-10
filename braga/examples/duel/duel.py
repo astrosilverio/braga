@@ -1,10 +1,11 @@
 import re
 import string
 from collections import defaultdict
+from itertools import chain
 
 import six
 
-from braga import Assemblage, Component, System, Aspect
+from braga import Assemblage, Component, System, Aspect, Manager
 
 
 #################################################
@@ -94,12 +95,42 @@ class ExpelliarmusSkill(Component):
         self.skill = 0
 
 
+name_manager = Manager(Name)
+
 #####################################
 # Define systems to manage components
 #####################################
 
 container_system = System()
 equipment_system = System()
+name_system = System()
+
+commands = {'put': 'command_for_put_goes_here'}  # placeholder
+
+
+@name_system
+def lex(token):
+    value = commands.get(token)
+    if value:
+        return ('verb', value)
+    values = name_manager.entities_by_name.get(token)
+    if values and len(values) == 1:
+        return ('entity', values[0])
+    elif values:
+        return ('entities', values)
+
+    token_components = token.split()
+    if len(token_components) > 1:
+        values = [name_manager.entities_by_name.get(word) for word in token_components]
+        values = [item for item in values if item is not None]
+        values = list(chain.from_iterable(values))
+
+    if values and len(values) == 1:
+        return ('entity', values[0])
+    elif values:
+        return ('entities', values)
+    else:
+        return ('literal', token)
 
 
 @container_system
@@ -143,26 +174,6 @@ def unequip(bearer, item):
     """Unequip an Entity from the Entity equipping it."""
     delattr(bearer, item.equipment_type)
     item.bearer = None
-
-
-class NameSystem(System):
-    """Associates strings with Entities."""
-    def __init__(self, world):
-        super(NameSystem, self).__init__(world=world, aspect=Aspect(all_of=set([Name])))
-        self.names = defaultdict(lambda: None)
-        self.update()
-
-    def get_entity_from_name(self, name):
-        return self.names.get(name)
-
-    def add_alias(self, alias, entity):
-        if alias in six.iterkeys(self.names):
-            raise ValueError("Duplicate entity names")
-        self.names[alias] = entity
-
-    def update(self):
-        for entity in self.entities:
-            self.names[entity.name] = entity
 
 
 class DescriptionSystem(System):
