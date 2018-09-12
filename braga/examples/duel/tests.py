@@ -108,7 +108,7 @@ class TestContainerSystem(unittest.TestCase):
         self.assertEqual(self.thing.location, self.bucket_one)
 
 
-class TestNameSystem(unittest.TestCase):
+class TestLexing(unittest.TestCase):
 
     def setUp(self):
         self.name_manager = Manager(duel.Name)
@@ -148,6 +148,12 @@ class TestNameSystem(unittest.TestCase):
         lexed_value = duel.name_system.lex('put')
         self.assertEqual(expected_token, lexed_value)
 
+
+class TestTokenizing(unittest.TestCase):
+
+    def setUp(self):
+        self.name_manager = Manager(duel.Name)
+
     def test_tokenizing_input_string_breaks_string_into_words(self):
         tokenized_input = duel.name_system.tokenize("razor toothbrush")
         self.assertEqual(tokenized_input, ["razor", "toothbrush"])
@@ -156,6 +162,12 @@ class TestNameSystem(unittest.TestCase):
         tokenized_input = duel.name_system.tokenize("tube of toothpaste and floss")
         self.assertEqual(tokenized_input, ["tube of toothpaste", "floss"])
 
+
+class TestParsing(unittest.TestCase):
+
+    def setUp(self):
+        self.name_manager = Manager(duel.Name)
+
     def test_parsing_token_list_generates_appropriate_tree(self):
         toothpaste = Assemblage(components=[duel.Name]).make(name='toothpaste')
         toothbrush = Assemblage(components=[duel.Name]).make(name='toothbrush')
@@ -163,6 +175,12 @@ class TestNameSystem(unittest.TestCase):
         self.name_manager.register(toothbrush)
 
         with patch.object(duel.duel, 'name_manager', self.name_manager):
-            parsed_input = duel.name_system.parse(["put", "toothpaste", "toothbrush"])
+            parsed_input = duel.name_system.parse([('verb', 'command_for_put_goes_here'), ('entity', toothpaste), ('entity', toothbrush)])
 
-        self.assertEqual(parsed_input, ['command_for_put_goes_here', toothpaste, toothbrush])
+        self.assertEqual(parsed_input, ('command_for_put_goes_here', (toothpaste, toothbrush)))
+
+    def test_literals_can_be_ignored_in_appropriate_places(self):
+        with patch.object(duel.duel, 'name_manager', self.name_manager):
+            parsed_input = duel.name_system.parse([('literal', 'print'), ('verb', 'command_for_inventory_goes_here')])
+
+        self.assertEqual(parsed_input, ('command_for_inventory_goes_here', ()))
